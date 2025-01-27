@@ -12,8 +12,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 class VintageMarocApplicationTests {
 
+	static {
+		System.setProperty("testcontainers.reuse.enable", "true");
+		System.setProperty("testcontainers.ryuk.disabled", "true");
+	}
+
 	@Container
-	static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine");
+	static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
+			.withReuse(true);
 
 	@DynamicPropertySource
 	static void configureProperties(DynamicPropertyRegistry registry) {

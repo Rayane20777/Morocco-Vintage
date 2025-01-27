@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'vintage-maroc'
         GITHUB_REPO = 'https://github.com/Rayane20777/Morocco-Vintage.git'
+        TESTCONTAINERS_DOCKER_NETWORK = 'vintage-network'
     }
     
     triggers {
@@ -25,7 +26,16 @@ pipeline {
         
         stage('Build and Test') {
             steps {
-                sh 'mvn clean install'
+                sh '''
+                    # Create network if it doesn't exist
+                    docker network create vintage-network || true
+                    
+                    # Set Docker host
+                    export DOCKER_HOST=unix:///var/run/docker.sock
+                    
+                    # Run Maven with specific network
+                    mvn clean install -Dtestcontainers.reuse.enable=true -Dtestcontainers.ryuk.disabled=true
+                '''
             }
             post {
                 always {

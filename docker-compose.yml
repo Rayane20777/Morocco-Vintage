@@ -55,14 +55,15 @@ services:
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
+      - //var/run/docker.sock:/var/run/docker.sock
       - jenkins-maven-cache:/root/.m2
       - /usr/local/openjdk-17:/usr/local/openjdk-17
     environment:
       - JENKINS_OPTS=--httpPort=8080
-      - JAVA_OPTS=-Djenkins.install.runSetupWizard=true
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=true -Dtestcontainers.reuse.enable=true -Dtestcontainers.ryuk.disabled=true
       - DOCKER_GROUP_ID=999
       - DOCKER_HOST=unix:///var/run/docker.sock
+      - TESTCONTAINERS_DOCKER_NETWORK=vintage-network
     networks:
       - vintage-network
 
