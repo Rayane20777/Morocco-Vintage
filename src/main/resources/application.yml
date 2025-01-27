@@ -1,17 +1,19 @@
-
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/vintage_maroc_db
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:password}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/vintage_maroc}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     show-sql: true
     properties:
       hibernate:
+        format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   port: 8080
@@ -22,4 +24,8 @@ logging:
     org.springframework: INFO
     com.example.vintage_maroc: DEBUG
 
+app:
+  jwt:
+    secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+    expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
 

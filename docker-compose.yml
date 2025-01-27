@@ -1,54 +1,77 @@
 version: '3.8'
 
 services:
-  smart-iot-manager:
+  app:
     build: .
-    container_name: vintage-maroc
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/vintage_maroc_db
-      SPRING_DATASOURCE_USERNAME: ${DB_USER:-postgres}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-password}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/vintage_maroc
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      - JWT_EXPIRATION=86400000
     depends_on:
-      - postgres
+      - db
     networks:
       - vintage-network
 
-  postgres:
-    image: postgres:13
-    container_name: postgres_db
+  db:
+    image: postgres:15-alpine
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: vintage_maroc_db
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      - POSTGRES_DB=vintage_maroc
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - vintage-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: vintage_maroc_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
     networks:
       - vintage-network
 
   jenkins:
-    image: jenkins/jenkins:lts
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
     container_name: jenkins
+    privileged: true
+    user: root
     ports:
-      - "8082:8080"
+      - "8081:8080"
+      - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - jenkins-maven-cache:/root/.m2
+      - /usr/local/openjdk-17:/usr/local/openjdk-17
+    environment:
+      - JENKINS_OPTS=--httpPort=8080
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=true
+      - DOCKER_GROUP_ID=999
+      - DOCKER_HOST=unix:///var/run/docker.sock
     networks:
       - vintage-network
-    environment:
-      - JENKINS_OPTS=--prefix=/jenkins
-    restart: always
+
+volumes:
+  postgres_data:
+  jenkins_home:
+  jenkins-maven-cache:
 
 networks:
   vintage-network:
     driver: bridge
 
-volumes:
-  postgres-data:
-    driver: local
-  jenkins_home:
-    driver: local
