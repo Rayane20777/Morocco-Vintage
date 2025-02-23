@@ -1,0 +1,12 @@
+/* You can add global styles to this file, and also import other style files */
+/* @tailwind base; */
+/* @tailwind components; */
+/* @tailwind utilities; */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #FFF7ED;
+  color: #013220;
+}
+
+/* You can keep or add your regular CSS here */

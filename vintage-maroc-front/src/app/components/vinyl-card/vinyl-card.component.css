@@ -1,0 +1,242 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  
+  /* Sort Bar */
+  .sort-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f5f5f5;
+    padding: 8px 16px;
+    margin-bottom: 20px;
+  }
+  
+  .sort-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .sort-links {
+    display: flex;
+    gap: 16px;
+  }
+  
+  .sort-option {
+    color: #0066cc;
+    text-decoration: none;
+  }
+  
+  .sort-option:hover {
+    text-decoration: underline;
+  }
+  
+  /* Record Item */
+  .record-item {
+    display: flex;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    gap: 20px;
+  }
+  
+  /* Image Section */
+  .record-image {
+    width: 150px;
+    flex-shrink: 0;
+  }
+  
+  .record-image img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+  }
+  
+  .record-stats {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #666;
+  }
+  
+  .stat-item {
+    display: flex;
+    gap: 4px;
+  }
+  
+  .stat-value {
+    color: #4CAF50;
+  }
+  
+  .rating-display {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #666;
+  }
+  
+  /* Details Section */
+  .record-details {
+    flex-grow: 1;
+  }
+  
+  .record-title {
+    margin-bottom: 12px;
+  }
+  
+  .title-link {
+    color: #0066cc;
+    text-decoration: none;
+    font-size: 16px;
+  }
+  
+  .title-link:hover {
+    text-decoration: underline;
+  }
+  
+  .record-info {
+    margin-bottom: 16px;
+  }
+  
+  .info-row {
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+  
+  .label {
+    color: #666;
+    margin-right: 8px;
+  }
+  
+  .value-link {
+    color: #0066cc;
+    text-decoration: none;
+  }
+  
+  .value-link:hover {
+    text-decoration: underline;
+  }
+  
+  .record-description {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  
+  .release-link a {
+    color: #0066cc;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  
+  .release-link a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Price Section */
+  .price-section {
+    width: 200px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+  
+  .rating-info {
+    margin-bottom: 12px;
+  }
+  
+  .stars {
+    color: #f8c51c;
+    font-size: 16px;
+  }
+  
+  .rating-stats {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .shipping-info {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 12px;
+  }
+  
+  .price-details {
+    margin-bottom: 8px;
+  }
+  
+  .main-price {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .shipping-cost {
+    font-size: 14px;
+    color: #0066cc;
+    margin-top: 4px;
+  }
+  
+  .total-euros {
+    font-size: 14px;
+    color: #666;
+    font-style: italic;
+  }
+  
+  .vat-notice {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 12px;
+  }
+  
+  .add-to-cart {
+    width: 100%;
+    padding: 8px;
+    background-color: #008744;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+  
+  .add-to-cart:hover {
+    background-color: #006633;
+  }
+  
+  .details-btn {
+    width: 100%;
+    padding: 8px;
+    background-color: white;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .details-btn:hover {
+    background-color: #f5f5f5;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .record-item {
+      flex-direction: column;
+    }
+  
+    .record-image {
+      max-width: 300px;
+      margin: 0 auto;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .record-item {
+      flex-direction: column;
+    }
+  
+    .record-image {
+      max-width: 300px;
+      margin: 0 auto;
+    }
+  } 

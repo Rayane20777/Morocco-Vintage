@@ -1,0 +1,89 @@
+.home-container .hero {
+  background-color: #013220;
+  color: #fff7ed;
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.home-container .hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.home-container .hero p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.home-container .hero .cta-button {
+  display: inline-block;
+  background-color: #a67c00;
+  color: #fff7ed;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.home-container .hero .cta-button:hover {
+  background-color: #6b4226;
+}
+
+.home-container .featured-products {
+  padding: 4rem 2rem;
+}
+
+.home-container .featured-products h2 {
+  text-align: center;
+  color: #013220;
+  margin-bottom: 2rem;
+}
+
+.home-container .featured-products .product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.home-container .featured-products .product-grid .product-item {
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.home-container .featured-products .product-grid .product-item:hover {
+  transform: translateY(-5px);
+}
+
+.home-container .featured-products .product-grid .product-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.home-container .featured-products .product-grid .product-item h3 {
+  color: #013220;
+  padding: 1rem;
+  margin: 0;
+}
+
+.home-container .featured-products .product-grid .product-item p {
+  color: #a67c00;
+  padding: 0 1rem 1rem;
+  font-weight: bold;
+}
+
+.vinyl-section {
+  padding: 4rem 2rem;
+  background-color: #fff7ed;
+}
+
+.vinyl-section h2 {
+  text-align: center;
+  color: #013220;
+  margin-bottom: 2rem;
+}
+

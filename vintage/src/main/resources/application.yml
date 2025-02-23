@@ -1,0 +1,96 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://rayane:${MONGODB_PASSWORD}@music.iaz2g.mongodb.net/vintage
+      auto-index-creation: true
+      authentication-database: admin
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 15MB
+
+server:
+  port: 8081
+  error:
+    include-message: always
+    include-binding-errors: always
+
+jwt:
+  secret: ${JWT_SECRET:your_default_secret_key_here_please_change_in_production}
+  expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
+
+logging:
+  level:
+    root: INFO
+    com.musicstream: DEBUG
+    org.springframework.security: INFO
+    org.springframework.data.mongodb: DEBUG
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+    org.mongodb.driver: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+  info:
+    git:
+      mode: full
+
+info:
+  app:
+    name: MusicStream 2.0
+    description: A modern music streaming platform
+    version: 1.0.0
+
+discogs:
+  api:
+    key: XnWInpWEmqaFKNjKdnqf
+    secret: MtIYqODmfmLpsnntgsZeOiYSrmjngmrK
+    base-url: https://api.discogs.com
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  data:
+    mongodb:
+      uri: mongodb+srv://rayane:${MONGODB_PASSWORD}@music.iaz2g.mongodb.net/vintage
+logging:
+  level:
+    root: DEBUG
+    com.musicstream: TRACE
+    org.springframework: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  data:
+    mongodb:
+      uri: mongodb+srv://rayane:${MONGODB_PASSWORD}@music.iaz2g.mongodb.net/vintage
+logging:
+  level:
+    root: WARN
+    com.musicstream: INFO
+    org.springframework: WARN
+
+server:
+  tomcat:
+    max-threads: 200
+    min-spare-threads: 20
+
+management:
+  endpoint:
+    health:
+      show-details: when-authorized
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB

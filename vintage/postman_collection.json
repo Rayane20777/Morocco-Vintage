@@ -1,0 +1,547 @@
+{
+  "info": {
+    "name": "Vintage Store API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"phoneNumber\": \"+1234567890\",\n    \"roles\": [\"USER\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Update User Roles",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}/roles",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{user_id}}", "roles"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[\"ADMIN\", \"USER\"]"
+            }
+          }
+        },
+        {
+          "name": "Upload Profile Image",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}/profile-image",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{user_id}}", "profile-image"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Profile Image",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}/profile-image",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{user_id}}", "profile-image"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vinyls",
+      "item": [
+        {
+          "name": "Create Vinyl",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vinyls",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vinyls"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Test Vinyl",
+                  "type": "text"
+                },
+                {
+                  "key": "artists",
+                  "value": "Test Artist",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "29.99",
+                  "type": "text"
+                },
+                {
+                  "key": "boughtPrice",
+                  "value": "20.00",
+                  "type": "text"
+                },
+                {
+                  "key": "year",
+                  "value": "2023",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "Available",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "thumbImageUrl",
+                  "value": "http://example.com/thumb.jpg",
+                  "type": "text"
+                },
+                {
+                  "key": "coverImageUrl",
+                  "value": "http://example.com/cover.jpg",
+                  "type": "text"
+                },
+                {
+                  "key": "genres",
+                  "value": "[\"LP\", \"Compilation\"]",
+                  "type": "text"
+                },
+                {
+                  "key": "styles",
+                  "value": "Progressive Rock",
+                  "type": "text"
+                },
+                {
+                  "key": "discogsId",
+                  "value": "12345",
+                  "type": "text"
+                },
+                {
+                  "key": "instanceId",
+                  "value": "67890",
+                  "type": "text"
+                },
+                {
+                  "key": "dateAdded",
+                  "value": "2023-02-21",
+                  "type": "text"
+                },
+                {
+                  "key": "descriptions",
+                  "value": "Description of the vinyl",
+                  "type": "text"
+                },
+                {
+                  "key": "active",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Detailed description of the vinyl",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Vinyl",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vinyls/{{vinyl_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vinyls", "{{vinyl_id}}"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Updated Vinyl",
+                  "type": "text"
+                },
+                {
+                  "key": "artists",
+                  "value": "Updated Artist",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "34.99",
+                  "type": "text"
+                },
+                {
+                  "key": "boughtPrice",
+                  "value": "25.00",
+                  "type": "text"
+                },
+                {
+                  "key": "year",
+                  "value": "2023",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "Available",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "thumbImageUrl",
+                  "value": "http://example.com/thumb_updated.jpg",
+                  "type": "text"
+                },
+                {
+                  "key": "coverImageUrl",
+                  "value": "http://example.com/cover_updated.jpg",
+                  "type": "text"
+                },
+                {
+                  "key": "genres",
+                  "value": "[\"LP\", \"Compilation\"]",
+                  "type": "text"
+                },
+                {
+                  "key": "styles",
+                  "value": "Progressive Rock",
+                  "type": "text"
+                },
+                {
+                  "key": "discogsId",
+                  "value": "54321",
+                  "type": "text"
+                },
+                {
+                  "key": "instanceId",
+                  "value": "09876",
+                  "type": "text"
+                },
+                {
+                  "key": "dateAdded",
+                  "value": "2023-02-22",
+                  "type": "text"
+                },
+                {
+                  "key": "descriptions",
+                  "value": "Updated description of the vinyl",
+                  "type": "text"
+                },
+                {
+                  "key": "active",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Updated detailed description of the vinyl",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Vinyl",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vinyls/{{vinyl_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vinyls", "{{vinyl_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get All Vinyls",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/vinyls",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vinyls"]
+            }
+          }
+        },
+        {
+          "name": "Get Vinyl by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/vinyls/{{vinyl_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vinyls", "{{vinyl_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Vinyls by Genre",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/vinyls/genre/{{genre}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vinyls", "genre", "{{genre}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Vinyls by Style",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/vinyls/style/{{style}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vinyls", "style", "{{style}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Vinyl by Discogs ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/vinyls/discogs/{{discogs_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vinyls", "discogs", "{{discogs_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Vinyl Image",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/vinyls/{{vinyl_id}}/image",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vinyls", "{{vinyl_id}}", "image"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Discogs",
+      "item": [
+        {
+          "name": "Sync Discogs Collection",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/discogs/sync?username={{discogs_username}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get Discogs Collection",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/discogs/collection?username={{discogs_username}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get Single Release",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/discogs/release/{{release_id}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "token",
+      "value": "your_jwt_token_here"
+    },
+    {
+      "key": "user_id",
+      "value": "user_id_here"
+    },
+    {
+      "key": "vinyl_id",
+      "value": "vinyl_id_here"
+    },
+    {
+      "key": "genre",
+      "value": "Rock"
+    },
+    {
+      "key": "style",
+      "value": "Progressive Rock"
+    },
+    {
+      "key": "discogs_id",
+      "value": "12345"
+    },
+    {
+      "key": "discogs_username",
+      "value": "ihshash"
+    },
+    {
+      "key": "release_id",
+      "value": "249504"
+    }
+  ]
+}

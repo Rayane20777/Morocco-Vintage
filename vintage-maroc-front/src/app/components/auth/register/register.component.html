@@ -1,0 +1,104 @@
+<div class="container">
+  <div class="vintage-form">
+    <div class="corner-accent top-left"></div>
+    <div class="corner-accent top-right"></div>
+    <div class="corner-accent bottom-left"></div>
+    <div class="corner-accent bottom-right"></div>
+
+    <div class="header">
+      <div class="ribbon left"></div>
+      <h1>REGISTRATION FORM</h1>
+      <div class="ribbon right"></div>
+    </div>
+
+    <div class="subtitle">CREATE YOUR ACCOUNT</div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="registration-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="username">Username*</label>
+          <input 
+            id="username" 
+            type="text" 
+            formControlName="username" 
+            class="vintage-input"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="first_name">First Name*</label>
+          <input 
+            id="first_name" 
+            type="text" 
+            formControlName="first_name" 
+            class="vintage-input"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="last_name">Last Name*</label>
+          <input 
+            id="last_name" 
+            type="text" 
+            formControlName="last_name" 
+            class="vintage-input"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email*</label>
+          <input 
+            id="email" 
+            type="email" 
+            formControlName="email" 
+            class="vintage-input"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone*</label>
+          <input 
+            id="phone" 
+            type="tel" 
+            formControlName="phone" 
+            class="vintage-input"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password*</label>
+          <input 
+            id="password" 
+            type="password" 
+            formControlName="password" 
+            class="vintage-input"
+          >
+        </div>
+
+        <div class="form-group image-upload">
+          <label for="image">Profile Image</label>
+          <div class="image-upload-container">
+            <input 
+              type="file" 
+              id="image" 
+              (change)="onImageSelected($event)" 
+              accept="image/*"
+              class="file-input"
+            >
+            <label for="image" class="upload-label">
+              <span>Choose File</span>
+            </label>
+            <div class="image-preview" *ngIf="imagePreview">
+              <img [src]="imagePreview" alt="Profile preview">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <button type="submit" class="vintage-button">REGISTER</button>
+      </div>
+    </form>
+  </div>
+</div>
+

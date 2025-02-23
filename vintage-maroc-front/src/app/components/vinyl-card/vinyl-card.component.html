@@ -1,0 +1,94 @@
+<div class="container">
+    <!-- Sort Bar -->
+    <div class="sort-bar">
+      <div class="sort-section">
+        <span class="sort-label">Sort By:</span>
+        <div class="sort-links">
+          <a href="#" *ngFor="let option of sortOptions" class="sort-option">{{ option }}</a>
+        </div>
+      </div>
+      <div class="price-label">Price</div>
+    </div>
+  
+    <!-- Record Listings -->
+    <div class="record-list">
+      <div class="record-item" *ngFor="let record of records">
+        <!-- Album Image -->
+        <div class="record-image">
+          <img [src]="record.imageUrl" [alt]="record.title">
+          <div class="record-stats">
+            <div class="stat-item">
+              <span class="stat-value">{{ record.have }}</span> have
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{{ record.want }}</span> want
+            </div>
+          </div>
+          <div class="rating-display">
+            Rated: {{ record.rating }}
+          </div>
+        </div>
+  
+        <!-- Record Details -->
+        <div class="record-details">
+          <div class="record-title">
+            <a href="#" class="title-link">{{ record.artist }} - {{ record.title }}</a>
+          </div>
+          
+          <div class="record-info">
+            <div class="info-row">
+              <span class="label">Label:</span>
+              <a href="#" class="value-link">{{ record.label }}</a>
+            </div>
+            <div class="info-row">
+              <span class="label">Cat#:</span>
+              <span class="value">{{ record.catalogNumber }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Media Condition:</span>
+              <span class="value">{{ record.mediaCondition }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Sleeve Condition:</span>
+              <span class="value">{{ record.sleeveCondition }}</span>
+            </div>
+          </div>
+  
+          <div class="record-description">
+            {{ record.description }}
+          </div>
+  
+          <div class="release-link">
+            <a href="#">View Release Page</a>
+          </div>
+        </div>
+  
+        <!-- Price Section -->
+        <div class="price-section">
+          <div class="rating-info">
+            <div class="stars">★★★★★</div>
+            <div class="rating-stats">
+              {{ record.ratingPercent }}%, {{ record.ratings }} ratings
+            </div>
+          </div>
+  
+          <div class="shipping-info">
+            Ships From: {{ record.shipsFrom }}
+          </div>
+  
+          <div class="price-details">
+            <div class="main-price">£{{ record.price.toFixed(2) }}</div>
+            <div class="shipping-cost">+£{{ record.shipping.toFixed(2) }} shipping</div>
+            <div class="total-euros">about €{{ record.totalEuros.toFixed(2) }} total</div>
+          </div>
+  
+          <div class="vat-notice">
+            VAT may be applied at checkout.
+          </div>
+  
+          <button class="add-to-cart" (click)="addToCart(record)">Add to Cart</button>
+          <button class="details-btn">Details</button>
+        </div>
+      </div>
+    </div>
+  </div> 

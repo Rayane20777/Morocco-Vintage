@@ -1,0 +1,54 @@
+<div class="container">
+  <div class="vintage-form">
+    <div class="corner-accent top-left"></div>
+    <div class="corner-accent top-right"></div>
+    <div class="corner-accent bottom-left"></div>
+    <div class="corner-accent bottom-right"></div>
+    
+    <div class="header">
+      <div class="ribbon left"></div>
+      <h1>VINTAGE FORM</h1>
+      <div class="ribbon right"></div>
+    </div>
+    
+    <div class="subtitle">SUBTLE ELEMENTS</div>
+    
+    <div class="form-container">
+      <div class="signup-section">
+        <h2>Register with us</h2>
+        <h3>SIGN UP</h3>
+        <div class="register-info">
+          <h4>REGISTER AND SAVE TIME!</h4>
+          <p>Register with us for future convenience:</p>
+          <ul>
+            <li>Fast and easy check out</li>
+            <li>Easy access to your order history and status</li>
+          </ul>
+          <button class="vintage-button">REGISTER</button>
+        </div>
+      </div>
+
+      <div class="divider">
+        <span class="or-circle">or</span>
+      </div>
+
+      <div class="login-section">
+        <h2>Already registered?</h2>
+        <h3>LOG IN</h3>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label>User Name*</label>
+            <input type="text" formControlName="username" class="vintage-input">
+          </div>
+          <div class="form-group">
+            <label>Password*</label>
+            <input type="password" formControlName="password" class="vintage-input">
+          </div>
+          <a href="#" class="forgot-password">Forgot your password?</a>
+          <button type="submit" class="vintage-button">LOG IN</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
