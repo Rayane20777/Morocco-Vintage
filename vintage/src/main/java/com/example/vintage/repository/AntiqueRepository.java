@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface AntiqueRepository extends MongoRepository<Antique, Long> {
+public interface AntiqueRepository extends MongoRepository<Antique, String> {
     List<Antique> findByDesigner(String designer);
     List<Antique> findByOrigin(String origin);
 } 

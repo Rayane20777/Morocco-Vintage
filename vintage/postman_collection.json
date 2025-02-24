@@ -504,6 +504,212 @@
           }
         }
       ]
+    },
+    {
+      "name": "Antiques",
+      "item": [
+        {
+          "name": "Create Antique",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/antiques",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "antiques"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Vintage Clock",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Beautiful antique wall clock",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "299.99",
+                  "type": "text"
+                },
+                {
+                  "key": "bought_price",
+                  "value": "150.00",
+                  "type": "text"
+                },
+                {
+                  "key": "year",
+                  "value": "1920",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "AVAILABLE",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "typeId",
+                  "value": "CLOCK",
+                  "type": "text"
+                },
+                {
+                  "key": "origin",
+                  "value": "France",
+                  "type": "text"
+                },
+                {
+                  "key": "material",
+                  "value": "Wood and Brass",
+                  "type": "text"
+                },
+                {
+                  "key": "condition",
+                  "value": "Good",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Antiques",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/antiques",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "antiques"]
+            }
+          }
+        },
+        {
+          "name": "Get Antique by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/antiques/{{antique_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "antiques", "{{antique_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Antique",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/antiques/{{antique_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "antiques", "{{antique_id}}"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Updated Vintage Clock",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Updated antique wall clock description",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "349.99",
+                  "type": "text"
+                },
+                {
+                  "key": "bought_price",
+                  "value": "150.00",
+                  "type": "text"
+                },
+                {
+                  "key": "year",
+                  "value": "1920",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "AVAILABLE",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "typeId",
+                  "value": "CLOCK",
+                  "type": "text"
+                },
+                {
+                  "key": "origin",
+                  "value": "France",
+                  "type": "text"
+                },
+                {
+                  "key": "material",
+                  "value": "Wood and Brass",
+                  "type": "text"
+                },
+                {
+                  "key": "condition",
+                  "value": "Excellent",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Antique",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/antiques/{{antique_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "antiques", "{{antique_id}}"]
+            }
+          }
+        }
+      ]
     }
   ],
   "variable": [
@@ -542,6 +748,10 @@
     {
       "key": "release_id",
       "value": "249504"
+    },
+    {
+      "key": "antique_id",
+      "value": "antique_id_here"
     }
   ]
 }

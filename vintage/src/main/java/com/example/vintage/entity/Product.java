@@ -20,6 +20,6 @@ public abstract class Product {
     private String status;
     @Field("product_image")
     private byte[] image; // Store image as binary data
-    private Boolean active;
+    private boolean active;
     private Date dateAdded;
 }

@@ -1,16 +1,16 @@
-package com.example.vintage.entity;
+package com.example.vintage.dto.response;
 
+import com.example.vintage.entity.enums.ProductStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.math.BigDecimal;
 
 @Data
-@Document(collection = "products")
 @EqualsAndHashCode(callSuper = true)
-public class Antique extends Product {
+public class AntiqueResponseDTO extends ProductResponseDTO {
     private String typeId;
     private String origin;
     private String material;
     private String condition;
-    private String designer;
 } 
