@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MusicEquipmentRepository extends MongoRepository<MusicEquipment, Long> {
+public interface MusicEquipmentRepository extends MongoRepository<MusicEquipment, String> {
     List<MusicEquipment> findByEquipmentCondition(MusicEquipmentStatus equipmentCondition);
     List<MusicEquipment> findByModel(String model);
 } 

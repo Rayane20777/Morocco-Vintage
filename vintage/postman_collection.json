@@ -690,6 +690,212 @@
           }
         }
       ]
+    },
+    {
+      "name": "Music Equipment",
+      "item": [
+        {
+          "name": "Create Music Equipment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/music-equipment",
+              "host": ["{{base_url}}"],
+              "path": ["api", "music-equipment"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Vintage Guitar",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Beautiful vintage electric guitar",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "1299.99",
+                  "type": "text"
+                },
+                {
+                  "key": "boughtPrice",
+                  "value": "800.00",
+                  "type": "text"
+                },
+                {
+                  "key": "year",
+                  "value": "1975",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "AVAILABLE",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "model",
+                  "value": "Stratocaster",
+                  "type": "text"
+                },
+                {
+                  "key": "equipmentCondition",
+                  "value": "GOOD",
+                  "type": "text"
+                },
+                {
+                  "key": "material",
+                  "value": "Maple and Alder",
+                  "type": "text"
+                },
+                {
+                  "key": "origin",
+                  "value": "USA",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Music Equipment",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/music-equipment",
+              "host": ["{{base_url}}"],
+              "path": ["api", "music-equipment"]
+            }
+          }
+        },
+        {
+          "name": "Get Music Equipment by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/music-equipment/{{equipment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "music-equipment", "{{equipment_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Music Equipment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/music-equipment/{{equipment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "music-equipment", "{{equipment_id}}"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Updated Vintage Guitar",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Updated vintage electric guitar description",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "1499.99",
+                  "type": "text"
+                },
+                {
+                  "key": "boughtPrice",
+                  "value": "800.00",
+                  "type": "text"
+                },
+                {
+                  "key": "year",
+                  "value": "1975",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "AVAILABLE",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "model",
+                  "value": "Stratocaster",
+                  "type": "text"
+                },
+                {
+                  "key": "equipmentCondition",
+                  "value": "EXCELLENT",
+                  "type": "text"
+                },
+                {
+                  "key": "material",
+                  "value": "Maple and Alder",
+                  "type": "text"
+                },
+                {
+                  "key": "origin",
+                  "value": "USA",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Music Equipment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/music-equipment/{{equipment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "music-equipment", "{{equipment_id}}"]
+            }
+          }
+        }
+      ]
     }
   ],
   "variable": [
@@ -732,6 +938,10 @@
     {
       "key": "antique_id",
       "value": "antique_id_here"
+    },
+    {
+      "key": "equipment_id",
+      "value": "equipment_id_here"
     }
   ]
 }
