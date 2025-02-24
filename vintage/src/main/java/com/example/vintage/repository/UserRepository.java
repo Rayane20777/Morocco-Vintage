@@ -1,6 +1,6 @@
 package com.example.vintage.repository;
 
-import com.example.vintage.entity.User;
+import com.example.vintage.model.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;

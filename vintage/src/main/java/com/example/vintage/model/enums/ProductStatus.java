@@ -1,4 +1,4 @@
-package com.example.vintage.entity.enums;
+package com.example.vintage.model.enums;
 
 public enum ProductStatus {
     AVAILABLE,

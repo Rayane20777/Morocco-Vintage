@@ -2,7 +2,7 @@ package com.example.vintage.service.Interface;
 
 import com.example.vintage.dto.request.UserRequestDTO;
 import com.example.vintage.dto.response.UserResponseDTO;
-import com.example.vintage.entity.User;
+import com.example.vintage.model.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

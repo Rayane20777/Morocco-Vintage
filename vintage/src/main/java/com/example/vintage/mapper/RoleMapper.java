@@ -1,7 +1,7 @@
 package com.example.vintage.mapper;
 
 import com.example.vintage.dto.RoleDTO;
-import com.example.vintage.entity.Role;
+import com.example.vintage.model.Role;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

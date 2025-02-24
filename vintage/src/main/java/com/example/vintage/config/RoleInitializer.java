@@ -1,6 +1,6 @@
 package com.example.vintage.config;
 
-import com.example.vintage.entity.Role;
+import com.example.vintage.model.Role;
 import com.example.vintage.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;

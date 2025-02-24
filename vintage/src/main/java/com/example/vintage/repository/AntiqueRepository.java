@@ -1,6 +1,6 @@
 package com.example.vintage.repository;
 
-import com.example.vintage.entity.Antique;
+import com.example.vintage.model.Antique;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

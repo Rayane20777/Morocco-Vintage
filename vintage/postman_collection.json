@@ -251,16 +251,6 @@
                   "type": "text"
                 },
                 {
-                  "key": "descriptions",
-                  "value": "Description of the vinyl",
-                  "type": "text"
-                },
-                {
-                  "key": "active",
-                  "value": "true",
-                  "type": "text"
-                },
-                {
                   "key": "description",
                   "value": "Detailed description of the vinyl",
                   "type": "text"
@@ -355,16 +345,6 @@
                 {
                   "key": "dateAdded",
                   "value": "2023-02-22",
-                  "type": "text"
-                },
-                {
-                  "key": "descriptions",
-                  "value": "Updated description of the vinyl",
-                  "type": "text"
-                },
-                {
-                  "key": "active",
-                  "value": "true",
                   "type": "text"
                 },
                 {

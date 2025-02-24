@@ -2,8 +2,8 @@ package com.example.vintage.mapper;
 
 import com.example.vintage.dto.request.UserRequestDTO;
 import com.example.vintage.dto.response.UserResponseDTO;
-import com.example.vintage.entity.Role;
-import com.example.vintage.entity.User;
+import com.example.vintage.model.Role;
+import com.example.vintage.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

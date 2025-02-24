@@ -2,7 +2,8 @@ package com.example.vintage.service.Implementation;
 
 import com.example.vintage.dto.response.DiscogsRelease;
 import com.example.vintage.dto.response.DiscogsResponse;
-import com.example.vintage.entity.Vinyl;
+import com.example.vintage.model.Vinyl;
+import com.example.vintage.model.enums.ProductStatus;
 import com.example.vintage.repository.VinylRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,7 +44,6 @@ public class DiscogsSyncService {
         while (hasMorePages) {
             String url = String.format("%s/users/%s/collection/folders/0/releases?per_page=100&page=%d", baseUrl, username, page);
             try {
-                // Get the raw response as a String first
                 ResponseEntity<String> rawResponse = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
@@ -51,12 +51,9 @@ public class DiscogsSyncService {
                     String.class
                 );
 
-                // Log the full raw response for debugging
                 System.out.println("Raw Response: " + rawResponse.getBody());
 
-                // Then convert it to your DTO
                 ObjectMapper mapper = new ObjectMapper();
-                // Configure ObjectMapper to ignore unknown properties
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 DiscogsResponse response = mapper.readValue(rawResponse.getBody(), DiscogsResponse.class);
 
@@ -71,7 +68,6 @@ public class DiscogsSyncService {
                                 vinylRepository.save(vinylToSave);
                             }
                         } catch (Exception e) {
-                            // Log the error but continue processing other releases
                             System.err.println("Error processing release " + release.getId() + ": " + e.getMessage());
                             continue;
                         }
@@ -83,15 +79,13 @@ public class DiscogsSyncService {
                 }
             } catch (Exception e) {
                 System.err.println("Error fetching data from Discogs API: " + e.getMessage());
-                // Wait a bit before retrying or moving to the next page
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                     break;
                 }
-                // Optionally retry the same page or skip to next
-                page++; // or retry same page: continue;
+                page++;
             }
         }
     }
@@ -111,53 +105,46 @@ public class DiscogsSyncService {
                         vinyl.setDateAdded(dateAdded);
                     } catch (ParseException e) {
                         System.out.println("Error parsing date: " + e.getMessage());
-                        vinyl.setDateAdded(new Date()); // Use current date as fallback
+                        vinyl.setDateAdded(new Date());
                     }
                 }
 
                 if (release.getBasicInformation() != null) {
                     DiscogsRelease.BasicInformation basicInfo = release.getBasicInformation();
-                    vinyl.setTitle(basicInfo.getTitle() != null ? basicInfo.getTitle() : "Unknown Title");
+                    vinyl.setName(basicInfo.getTitle() != null ? basicInfo.getTitle() : "Unknown Title");
                     vinyl.setYear(basicInfo.getYear());
 
-                    // Log the thumb and cover image URLs for debugging
                     System.out.println("Thumb URL: " + basicInfo.getThumb());
                     System.out.println("Cover Image URL: " + basicInfo.getCoverImage());
 
-                    // Handle image URLs
                     vinyl.setThumbImageUrl(basicInfo.getThumb() != null && !basicInfo.getThumb().isEmpty() ? basicInfo.getThumb() : "default_thumb_url");
                     vinyl.setCoverImageUrl(basicInfo.getCoverImage() != null && !basicInfo.getCoverImage().isEmpty() ? basicInfo.getCoverImage() : "default_cover_url");
 
-                    // Log the basic information for debugging
                     System.out.println("Raw Basic Information: " + basicInfo);
                     
-                    // Map artists
                     if (basicInfo.getArtists() != null) {
                         vinyl.setArtists(basicInfo.getArtists().stream()
                             .map(artist -> artist.getName())
                             .collect(Collectors.toList()));
                     }
 
-                    // Map genres and styles
                     vinyl.setGenres(basicInfo.getGenres());
                     vinyl.setStyles(basicInfo.getStyles());
 
-                    // Fill in formats and set descriptions to the format field
                     if (basicInfo.getFormats() != null && !basicInfo.getFormats().isEmpty()) {
                         DiscogsRelease.BasicInformation.Format firstFormat = basicInfo.getFormats().get(0);
                         if (firstFormat.getDescriptions() != null) {
                             vinyl.setFormat(new ArrayList<>(firstFormat.getDescriptions()));
                         } else {
-                            vinyl.setFormat(new ArrayList<>()); // Set empty list if no descriptions
+                            vinyl.setFormat(new ArrayList<>());
                         }
                     }
 
-                    // Fill in additional fields
                     vinyl.setActive(true);
-                    vinyl.setDescription("Vinyl");
+                    vinyl.setDescription("Vinyl Record");
                     vinyl.setPrice(new BigDecimal("0.00"));
-                    vinyl.setBoughtPrice(new BigDecimal("0.00"));
-                    vinyl.setStatus("AVAILABLE");
+                    vinyl.setBought_price(new BigDecimal("0.00"));
+                    vinyl.setStatus(ProductStatus.AVAILABLE);
                     vinyl.setImage(new byte[0]);
                 } else {
                     System.out.println("Basic Information is null for release ID: " + release.getId());

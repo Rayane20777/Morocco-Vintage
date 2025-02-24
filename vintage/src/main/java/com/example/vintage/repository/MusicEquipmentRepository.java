@@ -1,7 +1,7 @@
 package com.example.vintage.repository;
 
-import com.example.vintage.entity.MusicEquipment;
-import com.example.vintage.entity.enums.MusicEquipmentStatus;
+import com.example.vintage.model.MusicEquipment;
+import com.example.vintage.model.enums.MusicEquipmentStatus;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

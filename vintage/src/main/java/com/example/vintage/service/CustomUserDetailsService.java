@@ -1,6 +1,6 @@
 package com.example.vintage.service;
 
-import com.example.vintage.entity.User;
+import com.example.vintage.model.User;
 import com.example.vintage.repository.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;

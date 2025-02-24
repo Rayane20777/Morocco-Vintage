@@ -1,6 +1,6 @@
 package com.example.vintage.dto.response;
 
-import com.example.vintage.entity.enums.ProductStatus;
+import com.example.vintage.model.enums.ProductStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;

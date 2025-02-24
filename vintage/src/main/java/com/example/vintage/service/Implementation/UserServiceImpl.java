@@ -2,8 +2,8 @@ package com.example.vintage.service.Implementation;
 
 import com.example.vintage.dto.request.UserRequestDTO;
 import com.example.vintage.dto.response.UserResponseDTO;
-import com.example.vintage.entity.Role;
-import com.example.vintage.entity.User;
+import com.example.vintage.model.Role;
+import com.example.vintage.model.User;
 import com.example.vintage.exception.ResourceNotFoundException;
 import com.example.vintage.exception.UsernameAlreadyExistsException;
 import com.example.vintage.mapper.UserMapper;

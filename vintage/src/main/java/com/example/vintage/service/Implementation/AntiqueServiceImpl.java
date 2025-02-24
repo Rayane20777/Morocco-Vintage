@@ -2,7 +2,7 @@ package com.example.vintage.service.Implementation;
 
 import com.example.vintage.dto.request.AntiqueRequestDTO;
 import com.example.vintage.dto.response.AntiqueResponseDTO;
-import com.example.vintage.entity.Antique;
+import com.example.vintage.model.Antique;
 import com.example.vintage.exception.ResourceNotFoundException;
 import com.example.vintage.mapper.AntiqueMapper;
 import com.example.vintage.repository.AntiqueRepository;

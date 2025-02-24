@@ -1,4 +1,4 @@
-package com.example.vintage.entity;
+package com.example.vintage.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,4 +13,7 @@ public class Antique extends Product {
     private String material;
     private String condition;
     private String designer;
+
+    // Add a discriminator field to identify the type of product
+    private final String type = "ANTIQUE";
 } 

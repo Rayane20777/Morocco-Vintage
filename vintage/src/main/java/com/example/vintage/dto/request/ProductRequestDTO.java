@@ -1,6 +1,6 @@
 package com.example.vintage.dto.request;
 
-import com.example.vintage.entity.enums.ProductStatus;
+import com.example.vintage.model.enums.ProductStatus;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 

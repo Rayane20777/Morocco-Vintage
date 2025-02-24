@@ -1,9 +1,8 @@
-package com.example.vintage.entity;
+package com.example.vintage.model;
 
-import com.example.vintage.entity.enums.MusicEquipmentStatus;
+import com.example.vintage.model.enums.MusicEquipmentStatus;
 import lombok.Data;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @TypeAlias("music_equipment")

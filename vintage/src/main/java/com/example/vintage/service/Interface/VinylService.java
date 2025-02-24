@@ -7,8 +7,11 @@ import java.util.List;
 
 public interface VinylService {
     VinylResponseDTO createVinyl(VinylRequestDTO dto);
+    List<VinylResponseDTO> getAllVinyls();
+    VinylResponseDTO getVinylById(String id);
     VinylResponseDTO updateVinyl(String id, VinylRequestDTO dto);
     void deleteVinyl(String id);
-    VinylResponseDTO getVinylById(String id);
-    List<VinylResponseDTO> getAllVinyls();
+    List<VinylResponseDTO> getVinylsByGenre(String genre);
+    List<VinylResponseDTO> getVinylsByStyle(String style);
+    VinylResponseDTO getVinylByDiscogsId(Long discogsId);
 } 

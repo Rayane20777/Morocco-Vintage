@@ -1,6 +1,6 @@
 package com.example.vintage.dto.request;
 
-import com.example.vintage.entity.enums.MusicEquipmentStatus;
+import com.example.vintage.model.enums.MusicEquipmentStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
