@@ -10,14 +10,13 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.Date;
 
-@Mapper(componentModel = "spring", uses = {ProductMapper.class}, imports = {Date.class}, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = "spring", imports = {Date.class}, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface AntiqueMapper {
 
-    @Mapping(target = "image", expression = "java(byteArrayToBase64(antique.getImage()))")
     @Mapping(target = "bought_price", source = "bought_price")
     AntiqueResponseDTO toResponseDTO(Antique antique);
 
-    @Mapping(target = "image", expression = "java(multipartFileToByteArray(dto.getImage()))")
+    @Mapping(target = "image", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "dateAdded", expression = "java(new java.util.Date())")
     @Mapping(target = "active", constant = "true")
@@ -26,7 +25,7 @@ public interface AntiqueMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "dateAdded", ignore = true)
-    @Mapping(target = "image", expression = "java(multipartFileToByteArray(dto.getImage()))")
+    @Mapping(target = "image", ignore = true)
     @Mapping(target = "bought_price", source = "bought_price")
     @Mapping(target = "active", ignore = true)
     void updateEntity(AntiqueRequestDTO dto, @MappingTarget Antique entity) throws IOException;

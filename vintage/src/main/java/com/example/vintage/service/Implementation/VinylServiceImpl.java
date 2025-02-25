@@ -9,18 +9,35 @@ import com.example.vintage.service.Interface.VinylService;
 import com.example.vintage.mapper.VinylMapper;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.example.vintage.service.GridFsService;
 
 @Service
 @RequiredArgsConstructor
 public class VinylServiceImpl implements VinylService {
     private final VinylRepository vinylRepository;
     private final VinylMapper vinylMapper;
+    private final GridFsService gridFsService;
+    private static final Logger log = LoggerFactory.getLogger(VinylServiceImpl.class);
 
     @Override
     public VinylResponseDTO createVinyl(VinylRequestDTO dto) {
         Vinyl vinyl = vinylMapper.toEntity(dto);
+        vinyl.setDateAdded(new Date());
+        
+        if (dto.getImage() != null && !dto.getImage().isEmpty()) {
+            try {
+                String imageId = gridFsService.saveFile(dto.getImage());
+                vinyl.setImage(imageId);
+            } catch (Exception e) {
+                log.error("Error saving vinyl image: {}", e.getMessage());
+            }
+        }
+        
         Vinyl savedVinyl = vinylRepository.save(vinyl);
         return vinylMapper.toDto(savedVinyl);
     }

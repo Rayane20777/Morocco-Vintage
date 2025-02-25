@@ -12,7 +12,7 @@ public class ProductRequestDTO {
     private String description;
     private BigDecimal price;
     private BigDecimal bought_price;
-    private int year;
+    private Integer year;
     private ProductStatus status;
     private MultipartFile image;
 }

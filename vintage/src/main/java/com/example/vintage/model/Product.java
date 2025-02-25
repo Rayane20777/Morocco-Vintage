@@ -19,8 +19,8 @@ public abstract class Product {
     private BigDecimal bought_price;
     private int year;
     private ProductStatus status;
-    @Field("product_image")
-    private byte[] image; // Store image as binary data
+    // Changed from byte[] to String to store GridFS file ID
+    private String image;
     private boolean active;
     
     @Field("dateAdded")

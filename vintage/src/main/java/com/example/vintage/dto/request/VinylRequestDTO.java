@@ -12,7 +12,6 @@ import java.util.List;
 public class VinylRequestDTO extends ProductRequestDTO {
     private Long discogsId;
     private Long instanceId;
-    private Date dateAdded; // Assuming this is a Date type
     private List<String> genres; // Array of genres
     private List<String> styles; // Array of styles
     private String thumbImageUrl; // Thumbnail image URL
@@ -20,5 +19,4 @@ public class VinylRequestDTO extends ProductRequestDTO {
     private List<String> artists; // Array of artists
     private List<String> format; // Array of descriptions
     private Boolean active; // Active status
-
 }

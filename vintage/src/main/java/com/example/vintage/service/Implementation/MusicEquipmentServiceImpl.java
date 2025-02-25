@@ -6,6 +6,7 @@ import com.example.vintage.exception.ResourceNotFoundException;
 import com.example.vintage.mapper.MusicEquipmentMapper;
 import com.example.vintage.model.MusicEquipment;
 import com.example.vintage.repository.MusicEquipmentRepository;
+import com.example.vintage.service.GridFsService;
 import com.example.vintage.service.Interface.MusicEquipmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,19 @@ public class MusicEquipmentServiceImpl implements MusicEquipmentService {
 
     private final MusicEquipmentRepository musicEquipmentRepository;
     private final MusicEquipmentMapper musicEquipmentMapper;
+    private final GridFsService gridFsService;
 
     @Override
     @Transactional
     public MusicEquipmentResponseDTO createMusicEquipment(MusicEquipmentRequestDTO dto) {
         MusicEquipment musicEquipment = musicEquipmentMapper.toEntity(dto);
+        
+        // Handle image upload using GridFS
+        if (dto.getImage() != null && !dto.getImage().isEmpty()) {
+            String imageId = gridFsService.saveFile(dto.getImage());
+            musicEquipment.setImage(imageId);
+        }
+        
         MusicEquipment savedEquipment = musicEquipmentRepository.save(musicEquipment);
         return musicEquipmentMapper.toDto(savedEquipment);
     }
@@ -35,6 +44,12 @@ public class MusicEquipmentServiceImpl implements MusicEquipmentService {
         MusicEquipment existingEquipment = musicEquipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Music Equipment not found with id: " + id));
 
+        // Handle image update using GridFS
+        if (dto.getImage() != null && !dto.getImage().isEmpty()) {
+            String newImageId = gridFsService.updateFile(existingEquipment.getImage(), dto.getImage());
+            existingEquipment.setImage(newImageId);
+        }
+
         musicEquipmentMapper.updateEntityFromDto(dto, existingEquipment);
         MusicEquipment updatedEquipment = musicEquipmentRepository.save(existingEquipment);
         return musicEquipmentMapper.toDto(updatedEquipment);
@@ -43,9 +58,14 @@ public class MusicEquipmentServiceImpl implements MusicEquipmentService {
     @Override
     @Transactional
     public void deleteMusicEquipment(String id) {
-        if (!musicEquipmentRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Music Equipment not found with id: " + id);
+        MusicEquipment equipment = musicEquipmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Music Equipment not found with id: " + id));
+
+        // Delete image from GridFS if it exists
+        if (equipment.getImage() != null) {
+            gridFsService.deleteFile(equipment.getImage());
         }
+
         musicEquipmentRepository.deleteById(id);
     }
 

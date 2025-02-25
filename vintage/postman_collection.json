@@ -45,7 +45,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\"\n}"
+              "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password123\"\n}"
             }
           }
         },
@@ -196,7 +196,7 @@
                   "type": "text"
                 },
                 {
-                  "key": "boughtPrice",
+                  "key": "bought_price",
                   "value": "20.00",
                   "type": "text"
                 },
@@ -207,13 +207,16 @@
                 },
                 {
                   "key": "status",
-                  "value": "Available",
+                  "value": "AVAILABLE",
                   "type": "text"
                 },
                 {
                   "key": "image",
                   "type": "file",
-                  "src": ""
+                  "src": "/path/to/image.jpg",
+                  "options": {
+                    "contentType": "image/jpeg"
+                  }
                 },
                 {
                   "key": "thumbImageUrl",
@@ -243,11 +246,6 @@
                 {
                   "key": "instanceId",
                   "value": "67890",
-                  "type": "text"
-                },
-                {
-                  "key": "dateAdded",
-                  "value": "2023-02-21",
                   "type": "text"
                 },
                 {
@@ -293,7 +291,7 @@
                   "type": "text"
                 },
                 {
-                  "key": "boughtPrice",
+                  "key": "bought_price",
                   "value": "25.00",
                   "type": "text"
                 },
@@ -304,7 +302,7 @@
                 },
                 {
                   "key": "status",
-                  "value": "Available",
+                  "value": "AVAILABLE",
                   "type": "text"
                 },
                 {
@@ -340,11 +338,6 @@
                 {
                   "key": "instanceId",
                   "value": "09876",
-                  "type": "text"
-                },
-                {
-                  "key": "dateAdded",
-                  "value": "2023-02-22",
                   "type": "text"
                 },
                 {
@@ -543,7 +536,8 @@
                 {
                   "key": "image",
                   "type": "file",
-                  "src": ""
+                  "enabled": true,
+                  "src": null
                 },
                 {
                   "key": "typeId",
@@ -563,6 +557,11 @@
                 {
                   "key": "condition",
                   "value": "Good",
+                  "type": "text"
+                },
+                {
+                  "key": "designer",
+                  "value": "Unknown",
                   "type": "text"
                 }
               ]
@@ -601,8 +600,8 @@
                 "value": "Bearer {{token}}"
               },
               {
-                "key": "Content-Type",
-                "value": "multipart/form-data"
+                "key": "Accept",
+                "value": "application/json"
               }
             ],
             "url": {
@@ -667,6 +666,11 @@
                   "key": "condition",
                   "value": "Excellent",
                   "type": "text"
+                },
+                {
+                  "key": "designer",
+                  "value": "Unknown",
+                  "type": "text"
                 }
               ]
             }
@@ -686,6 +690,17 @@
               "raw": "{{base_url}}/api/v1/antiques/{{antique_id}}",
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "antiques", "{{antique_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Antique Image",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/images/{{image_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "images", "{{image_id}}"]
             }
           }
         }
@@ -732,7 +747,7 @@
                   "type": "text"
                 },
                 {
-                  "key": "boughtPrice",
+                  "key": "bought_price",
                   "value": "800.00",
                   "type": "text"
                 },
@@ -749,7 +764,10 @@
                 {
                   "key": "image",
                   "type": "file",
-                  "src": ""
+                  "src": "/path/to/image.jpg",
+                  "options": {
+                    "contentType": "image/jpeg"
+                  }
                 },
                 {
                   "key": "model",
@@ -835,7 +853,7 @@
                   "type": "text"
                 },
                 {
-                  "key": "boughtPrice",
+                  "key": "bought_price",
                   "value": "800.00",
                   "type": "text"
                 },
@@ -852,7 +870,10 @@
                 {
                   "key": "image",
                   "type": "file",
-                  "src": ""
+                  "src": "/path/to/image.jpg",
+                  "options": {
+                    "contentType": "image/jpeg"
+                  }
                 },
                 {
                   "key": "model",
@@ -942,6 +963,10 @@
     {
       "key": "equipment_id",
       "value": "equipment_id_here"
+    },
+    {
+      "key": "image_id",
+      "value": "image_id_here"
     }
   ]
 }

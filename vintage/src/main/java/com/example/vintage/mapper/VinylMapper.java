@@ -11,10 +11,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.Date;
 
-@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, imports = {Date.class})
 public interface VinylMapper {
 
+    @Mapping(target = "dateAdded", expression = "java(new Date())")
+    @Mapping(target = "image", ignore = true)
     @Mapping(source = "bought_price", target = "bought_price")
     Vinyl toEntity(VinylRequestDTO dto);
 
