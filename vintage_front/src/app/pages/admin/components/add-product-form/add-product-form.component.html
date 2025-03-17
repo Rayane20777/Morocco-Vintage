@@ -1,0 +1,352 @@
+<form (ngSubmit)="onSubmit()" class="space-y-6">
+  <!-- Product Type Selection -->
+  <div class="mb-6">
+    <h3 class="text-lg font-medium mb-4">Product Type</h3>
+    <div class="flex flex-wrap gap-3">
+      <button 
+        type="button" 
+        (click)="setProductType('VINYL')" 
+        class="px-4 py-2 rounded-md border transition-colors"
+        [class.bg-teal]="product.type === 'VINYL'"
+        [class.text-white]="product.type === 'VINYL'"
+        [class.border-teal]="product.type === 'VINYL'"
+        [class.border-gray-300]="product.type !== 'VINYL'"
+      >
+        Vinyl Record
+      </button>
+      <button 
+        type="button" 
+        (click)="setProductType('EQUIPMENT')" 
+        class="px-4 py-2 rounded-md border transition-colors"
+        [class.bg-teal]="product.type === 'EQUIPMENT'"
+        [class.text-white]="product.type === 'EQUIPMENT'"
+        [class.border-teal]="product.type === 'EQUIPMENT'"
+        [class.border-gray-300]="product.type !== 'EQUIPMENT'"
+      >
+        Equipment
+      </button>
+      <button 
+        type="button" 
+        (click)="setProductType('ANTIQUE')" 
+        class="px-4 py-2 rounded-md border transition-colors"
+        [class.bg-teal]="product.type === 'ANTIQUE'"
+        [class.text-white]="product.type === 'ANTIQUE'"
+        [class.border-teal]="product.type === 'ANTIQUE'"
+        [class.border-gray-300]="product.type !== 'ANTIQUE'"
+      >
+        Antique
+      </button>
+    </div>
+  </div>
+
+  <!-- Basic Product Information -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div>
+      <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Product Name*</label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        [(ngModel)]="product.name"
+        required
+        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+      />
+    </div>
+
+    <div>
+      <label for="year" class="block text-sm font-medium text-gray-700 mb-1">Year</label>
+      <input
+        type="number"
+        id="year"
+        name="year"
+        [(ngModel)]="product.year"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+      />
+    </div>
+
+    <div>
+      <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Selling Price*</label>
+      <input
+        type="number"
+        id="price"
+        name="price"
+        [(ngModel)]="product.price"
+        required
+        step="0.01"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+      />
+    </div>
+
+    <div>
+      <label for="boughtPrice" class="block text-sm font-medium text-gray-700 mb-1">Bought Price*</label>
+      <input
+        type="number"
+        id="boughtPrice"
+        name="boughtPrice"
+        [(ngModel)]="product.boughtPrice"
+        required
+        step="0.01"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+      />
+    </div>
+
+    <div>
+      <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+      <select
+        id="status"
+        name="status"
+        [(ngModel)]="product.status"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+      >
+        <option value="AVAILABLE">Available</option>
+        <option value="SOLD OUT">Sold Out</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div>
+    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+    <textarea
+      id="description"
+      name="description"
+      [(ngModel)]="product.description"
+      rows="4"
+      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+    ></textarea>
+  </div>
+
+  <!-- Vinyl-specific fields -->
+  <div *ngIf="product.type === 'VINYL'" class="space-y-6">
+    <h3 class="text-lg font-medium mb-4">Vinyl Details</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <label for="artists" class="block text-sm font-medium text-gray-700 mb-1">Artists</label>
+        <input
+          type="text"
+          id="artists"
+          name="artists"
+          [(ngModel)]="artistsInput"
+          placeholder="Separate multiple artists with commas"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label for="genres" class="block text-sm font-medium text-gray-700 mb-1">Genres</label>
+        <input
+          type="text"
+          id="genres"
+          name="genres"
+          [(ngModel)]="genresInput"
+          placeholder="Separate multiple genres with commas"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label for="styles" class="block text-sm font-medium text-gray-700 mb-1">Styles</label>
+        <input
+          type="text"
+          id="styles"
+          name="styles"
+          [(ngModel)]="stylesInput"
+          placeholder="Separate multiple styles with commas"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label for="format" class="block text-sm font-medium text-gray-700 mb-1">Format</label>
+        <input
+          type="text"
+          id="format"
+          name="format"
+          [(ngModel)]="formatInput"
+          placeholder="E.g., LP, 12&quot;, 180g"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label for="discogsId" class="block text-sm font-medium text-gray-700 mb-1">Discogs ID</label>
+        <input
+          type="number"
+          id="discogsId"
+          name="discogsId"
+          [(ngModel)]="product.discogsId"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Equipment-specific fields -->
+  <div *ngIf="product.type === 'EQUIPMENT'" class="space-y-6">
+    <h3 class="text-lg font-medium mb-4">Equipment Details</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <label for="model" class="block text-sm font-medium text-gray-700 mb-1">Model</label>
+        <input
+          type="text"
+          id="model"
+          name="model"
+          [(ngModel)]="product.model"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label for="equipmentCondition" class="block text-sm font-medium text-gray-700 mb-1">Condition</label>
+        <select
+          id="equipmentCondition"
+          name="equipmentCondition"
+          [(ngModel)]="product.equipmentCondition"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+        >
+          <option value="NEW">New</option>
+          <option value="REFURBISHED">Refurbished</option>
+          <option value="USED">Used</option>
+          <option value="VINTAGE">Vintage</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="material" class="block text-sm font-medium text-gray-700 mb-1">Material</label>
+        <input
+          type="text"
+          id="material"
+          name="material"
+          [(ngModel)]="product.material"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label for="origin" class="block text-sm font-medium text-gray-700 mb-1">Origin</label>
+        <input
+          type="text"
+          id="origin"
+          name="origin"
+          [(ngModel)]="product.origin"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Antique-specific fields -->
+  <div *ngIf="product.type === 'ANTIQUE'" class="space-y-6">
+    <h3 class="text-lg font-medium mb-4">Antique Details</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <label for="typeId" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+        <select
+          id="typeId"
+          name="typeId"
+          [(ngModel)]="product.typeId"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+        >
+          <option value="CLOCK">Clock</option>
+          <option value="FURNITURE">Furniture</option>
+          <option value="DECOR">Decor</option>
+          <option value="INSTRUMENT">Musical Instrument</option>
+          <option value="OTHER">Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="condition" class="block text-sm font-medium text-gray-700 mb-1">Condition</label>
+        <input
+          type="text"
+          id="condition"
+          name="condition"
+          [(ngModel)]="product.condition"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label for="material" class="block text-sm font-medium text-gray-700 mb-1">Material</label>
+        <input
+          type="text"
+          id="material"
+          name="material"
+          [(ngModel)]="product.material"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label for="origin" class="block text-sm font-medium text-gray-700 mb-1">Origin</label>
+        <input
+          type="text"
+          id="origin"
+          name="origin"
+          [(ngModel)]="product.origin"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Upload -->
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
+    <div class="flex items-center gap-4">
+      <label for="image-upload" class="cursor-pointer bg-white px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+        Choose File
+        <input
+          type="file"
+          id="image-upload"
+          accept="image/*"
+          (change)="onImageSelected($event)"
+          class="hidden"
+        />
+      </label>
+      <span class="text-sm text-gray-500">
+        {{ imageFile ? imageFile.name : 'No file chosen' }}
+      </span>
+    </div>
+    <div *ngIf="imagePreview" class="mt-4">
+      <img [src]="imagePreview" alt="Preview" class="h-40 object-contain border rounded-md">
+    </div>
+  </div>
+
+  <!-- Profit Calculation -->
+  <div class="bg-gray-50 p-4 rounded-md">
+    <h3 class="text-lg font-medium mb-2">Profit Calculation</h3>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <span class="text-sm text-gray-500">Profit:</span>
+        <p class="font-medium" [class.text-green-600]="calculateProfit() > 0" [class.text-red-600]="calculateProfit() < 0">
+          £{{ calculateProfit().toFixed(2) }}
+        </p>
+      </div>
+      <div>
+        <span class="text-sm text-gray-500">Profit Percentage:</span>
+        <p class="font-medium" [class.text-green-600]="calculateProfitPercentage() > 0" [class.text-red-600]="calculateProfitPercentage() < 0">
+          {{ calculateProfitPercentage() }}%
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="flex justify-end gap-4 pt-4">
+    <button
+      type="button"
+      (click)="cancel()"
+      class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="px-4 py-2 bg-teal text-white rounded-md hover:bg-teal/90"
+    >
+      Add Product
+    </button>
+  </div>
+</form>
+
