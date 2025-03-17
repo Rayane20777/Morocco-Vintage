@@ -78,7 +78,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "{{bearer_token}}"
               }
             ],
             "url": {
@@ -169,13 +169,13 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "{{bearer_token}}"
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/vinyls",
+              "raw": "{{base_url}}/api/admin/vinyls",
               "host": ["{{base_url}}"],
-              "path": ["api", "vinyls"]
+              "path": ["api", "admin", "vinyls"]
             },
             "body": {
               "mode": "formdata",
@@ -187,7 +187,7 @@
                 },
                 {
                   "key": "artists",
-                  "value": "Test Artist",
+                  "value": "[\"Test Artist\"]",
                   "type": "text"
                 },
                 {
@@ -213,29 +213,16 @@
                 {
                   "key": "image",
                   "type": "file",
-                  "src": "/path/to/image.jpg",
-                  "options": {
-                    "contentType": "image/jpeg"
-                  }
-                },
-                {
-                  "key": "thumbImageUrl",
-                  "value": "http://example.com/thumb.jpg",
-                  "type": "text"
-                },
-                {
-                  "key": "coverImageUrl",
-                  "value": "http://example.com/cover.jpg",
-                  "type": "text"
+                  "src": "/path/to/image.jpg"
                 },
                 {
                   "key": "genres",
-                  "value": "[\"LP\", \"Compilation\"]",
+                  "value": "[\"Rock\", \"Alternative\"]",
                   "type": "text"
                 },
                 {
                   "key": "styles",
-                  "value": "Progressive Rock",
+                  "value": "[\"Progressive Rock\"]",
                   "type": "text"
                 },
                 {
@@ -251,6 +238,16 @@
                 {
                   "key": "description",
                   "value": "Detailed description of the vinyl",
+                  "type": "text"
+                },
+                {
+                  "key": "format",
+                  "value": "[\"LP\", \"Album\"]",
+                  "type": "text"
+                },
+                {
+                  "key": "active",
+                  "value": "true",
                   "type": "text"
                 }
               ]
@@ -268,9 +265,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/vinyls/{{vinyl_id}}",
+              "raw": "{{base_url}}/api/admin/vinyls/{{vinyl_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "vinyls", "{{vinyl_id}}"]
+              "path": ["api", "admin", "vinyls", "{{vinyl_id}}"]
             },
             "body": {
               "mode": "formdata",
@@ -360,9 +357,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/vinyls/{{vinyl_id}}",
+              "raw": "{{base_url}}/api/admin/vinyls/{{vinyl_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "vinyls", "{{vinyl_id}}"]
+              "path": ["api", "admin", "vinyls", "{{vinyl_id}}"]
             }
           }
         },
@@ -426,9 +423,9 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/images/{{image_id}}",
+              "raw": "{{base_url}}/api/vinyls/{{vinyl_id}}/image",
               "host": ["{{base_url}}"],
-              "path": ["api", "images", "{{image_id}}"]
+              "path": ["api", "vinyls", "{{vinyl_id}}", "image"]
             }
           }
         }
@@ -482,23 +479,41 @@
       "name": "Antiques",
       "item": [
         {
+          "name": "Get All Antiques",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/antiques",
+              "host": ["{{base_url}}"],
+              "path": ["api", "antiques"]
+            }
+          }
+        },
+        {
+          "name": "Get Antique by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/antiques/{{antique_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "antiques", "{{antique_id}}"]
+            }
+          }
+        },
+        {
           "name": "Create Antique",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "multipart/form-data"
+                "value": "{{bearer_token}}"
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/v1/antiques",
+              "raw": "{{base_url}}/api/admin/antiques",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "antiques"]
+              "path": ["api", "admin", "antiques"]
             },
             "body": {
               "mode": "formdata",
@@ -519,7 +534,7 @@
                   "type": "text"
                 },
                 {
-                  "key": "bought_price",
+                  "key": "boughtPrice",
                   "value": "150.00",
                   "type": "text"
                 },
@@ -536,11 +551,10 @@
                 {
                   "key": "image",
                   "type": "file",
-                  "enabled": true,
-                  "src": null
+                  "src": ""
                 },
                 {
-                  "key": "typeId",
+                  "key": "type",
                   "value": "CLOCK",
                   "type": "text"
                 },
@@ -558,35 +572,8 @@
                   "key": "condition",
                   "value": "Good",
                   "type": "text"
-                },
-                {
-                  "key": "designer",
-                  "value": "Unknown",
-                  "type": "text"
                 }
               ]
-            }
-          }
-        },
-        {
-          "name": "Get All Antiques",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/api/v1/antiques",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "antiques"]
-            }
-          }
-        },
-        {
-          "name": "Get Antique by ID",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/api/v1/antiques/{{antique_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "antiques", "{{antique_id}}"]
             }
           }
         },
@@ -597,17 +584,13 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
+                "value": "{{bearer_token}}"
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/v1/antiques/{{antique_id}}",
+              "raw": "{{base_url}}/api/admin/antiques/{{antique_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "antiques", "{{antique_id}}"]
+              "path": ["api", "admin", "antiques", "{{antique_id}}"]
             },
             "body": {
               "mode": "formdata",
@@ -628,7 +611,7 @@
                   "type": "text"
                 },
                 {
-                  "key": "bought_price",
+                  "key": "boughtPrice",
                   "value": "150.00",
                   "type": "text"
                 },
@@ -648,7 +631,7 @@
                   "src": ""
                 },
                 {
-                  "key": "typeId",
+                  "key": "type",
                   "value": "CLOCK",
                   "type": "text"
                 },
@@ -666,11 +649,6 @@
                   "key": "condition",
                   "value": "Excellent",
                   "type": "text"
-                },
-                {
-                  "key": "designer",
-                  "value": "Unknown",
-                  "type": "text"
                 }
               ]
             }
@@ -683,13 +661,13 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "{{bearer_token}}"
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/v1/antiques/{{antique_id}}",
+              "raw": "{{base_url}}/api/admin/antiques/{{antique_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "antiques", "{{antique_id}}"]
+              "path": ["api", "admin", "antiques", "{{antique_id}}"]
             }
           }
         },
@@ -717,16 +695,12 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "multipart/form-data"
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/music-equipment",
+              "raw": "{{base_url}}/api/admin/music-equipment",
               "host": ["{{base_url}}"],
-              "path": ["api", "music-equipment"]
+              "path": ["api", "admin", "music-equipment"]
             },
             "body": {
               "mode": "formdata",
@@ -823,16 +797,12 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "multipart/form-data"
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/music-equipment/{{equipment_id}}",
+              "raw": "{{base_url}}/api/admin/music-equipment/{{equipment_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "music-equipment", "{{equipment_id}}"]
+              "path": ["api", "admin", "music-equipment", "{{equipment_id}}"]
             },
             "body": {
               "mode": "formdata",
@@ -910,9 +880,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/music-equipment/{{equipment_id}}",
+              "raw": "{{base_url}}/api/admin/music-equipment/{{equipment_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "music-equipment", "{{equipment_id}}"]
+              "path": ["api", "admin", "music-equipment", "{{equipment_id}}"]
             }
           }
         },
@@ -939,7 +909,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "{{bearer_token}}"
               },
               {
                 "key": "Content-Type",
@@ -949,11 +919,11 @@
             "url": {
               "raw": "{{base_url}}/api/user/orders",
               "host": ["{{base_url}}"],
-              "path": ["api", "orders"]
+              "path": ["api", "user", "orders"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"clientId\": \"{{client_id}}\",\n    \"paymentType\": \"CASH_ON_DELIVERY\",\n    \"items\": [\n        {\n            \"productId\": \"{{product_id}}\"\n        },\n        {\n            \"productId\": \"{{product_id_2}}\"\n        }\n    ],\n    \"shipping\": {\n        \"address\": \"123 Main St\",\n        \"city\": \"Example City\",\n        \"postalCode\": \"12345\"\n    }\n}"
+              "raw": "{\n    \"clientId\": \"{{client_id}}\",\n    \"paymentType\": \"CASH_ON_DELIVERY\",\n    \"items\": [\n        {\n            \"productId\": \"{{product_id}}\"\n        }\n    ],\n    \"shipping\": {\n        \"address\": \"123 Main St\",\n        \"city\": \"Example City\",\n        \"postalCode\": \"12345\"\n    }\n}"
             }
           }
         },
@@ -1077,7 +1047,13 @@
     },
     {
       "key": "token",
-      "value": "your_jwt_token_here"
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bearer_token",
+      "value": "Bearer {{token}}",
+      "type": "string"
     },
     {
       "key": "user_id",

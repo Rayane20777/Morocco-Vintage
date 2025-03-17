@@ -7,49 +7,56 @@ import com.example.vintage.service.Interface.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/user/orders")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class OrderController {
-
     private final OrderService orderService;
 
-    @PostMapping
+    // User endpoints
+    @PostMapping("/api/user/orders")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest request) {
         OrderResponse createdOrder = orderService.createOrder(request);
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{orderId}")
+    @GetMapping("/api/user/orders/{orderId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable String orderId) {
         OrderResponse order = orderService.getOrderById(orderId);
         return ResponseEntity.ok(order);
     }
 
-    @GetMapping
+    // Admin endpoints
+    @GetMapping("/api/admin/orders")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<OrderResponse>> getAllOrders() {
         List<OrderResponse> orders = orderService.getAllOrders();
         return ResponseEntity.ok(orders);
     }
 
-    @GetMapping("/client/{clientId}")
+    @GetMapping("/api/admin/orders/client/{clientId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<OrderResponse>> getOrdersByClientId(@PathVariable String clientId) {
         List<OrderResponse> orders = orderService.getOrdersByClientId(clientId);
         return ResponseEntity.ok(orders);
     }
 
-    @GetMapping("/status/{status}")
+    @GetMapping("/api/admin/orders/status/{status}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<OrderResponse>> getOrdersByStatus(@PathVariable OrderStatus status) {
         List<OrderResponse> orders = orderService.getOrdersByStatus(status);
         return ResponseEntity.ok(orders);
     }
 
-    @PutMapping("/{orderId}/status")
+    @PutMapping("/api/admin/orders/{orderId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<OrderResponse> updateOrderStatus(
             @PathVariable String orderId,
             @RequestBody OrderStatus status) {
@@ -57,7 +64,8 @@ public class OrderController {
         return ResponseEntity.ok(updatedOrder);
     }
 
-    @DeleteMapping("/{orderId}")
+    @DeleteMapping("/api/admin/orders/{orderId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteOrder(@PathVariable String orderId) {
         orderService.deleteOrder(orderId);
         return ResponseEntity.noContent().build();
