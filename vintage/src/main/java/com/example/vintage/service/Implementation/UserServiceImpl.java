@@ -106,4 +106,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
     }
+
+    @Override
+    public String getProfileImageId(String id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        return user.getImageId(); // Returns the GridFS image ID
+    }
 }

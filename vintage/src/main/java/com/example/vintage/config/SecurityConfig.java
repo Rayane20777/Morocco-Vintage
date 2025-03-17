@@ -48,16 +48,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/vinyls/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/images/**").permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/user/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/user/**").denyAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/user/**").denyAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/user/**").denyAll()
+                        .requestMatchers("/api/user/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(handling -> handling
+                .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint((request, response, authException) -> {
                             log.error("Unauthorized error: {}", authException.getMessage());
                             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized");
@@ -85,7 +82,7 @@ public class SecurityConfig {
         return source;
     }
 
-   @Bean
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }

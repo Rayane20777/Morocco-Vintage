@@ -426,9 +426,9 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/vinyls/{{vinyl_id}}/image",
+              "raw": "{{base_url}}/api/images/{{image_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "vinyls", "{{vinyl_id}}", "image"]
+              "path": ["api", "images", "{{image_id}}"]
             }
           }
         }
@@ -915,6 +915,157 @@
               "path": ["api", "music-equipment", "{{equipment_id}}"]
             }
           }
+        },
+        {
+          "name": "Get Music Equipment Image",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/images/{{image_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "images", "{{image_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"clientId\": \"{{client_id}}\",\n    \"paymentType\": \"CASH_ON_DELIVERY\",\n    \"items\": [\n        {\n            \"productId\": \"{{product_id}}\"\n        },\n        {\n            \"productId\": \"{{product_id_2}}\"\n        }\n    ],\n    \"shipping\": {\n        \"address\": \"123 Main St\",\n        \"city\": \"Example City\",\n        \"postalCode\": \"12345\"\n    }\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/orders/{{order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{order_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Get Orders by Client ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/orders/client/{{client_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "client", "{{client_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Orders by Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/orders/status/{{status}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "status", "{{status}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/orders/{{order_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{order_id}}", "status"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "\"ACCEPTED\""
+            }
+          }
+        },
+        {
+          "name": "Delete Order",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/orders  /{{order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{order_id}}"]
+            }
+          }
         }
       ]
     }
@@ -967,6 +1118,26 @@
     {
       "key": "image_id",
       "value": "image_id_here"
+    },
+    {
+      "key": "order_id",
+      "value": "order_id_here"
+    },
+    {
+      "key": "client_id",
+      "value": "client_id_here"
+    },
+    {
+      "key": "product_id",
+      "value": "product_id_here"
+    },
+    {
+      "key": "product_id_2",
+      "value": "another_product_id_here"
+    },
+    {
+      "key": "status",
+      "value": "PENDING"
     }
   ]
 }

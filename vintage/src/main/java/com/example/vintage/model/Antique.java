@@ -14,6 +14,13 @@ public class Antique extends Product {
     private String condition;
     private String designer;
 
-    // Add a discriminator field to identify the type of product
-    private final String type = "ANTIQUE";
+    public Antique() {
+        super();
+        setType("ANTIQUE");
+    }
+
+    @Override
+    public void setType(String type) {
+        super.setType("ANTIQUE");
+    }
 } 

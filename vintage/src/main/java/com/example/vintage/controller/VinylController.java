@@ -3,9 +3,11 @@ package com.example.vintage.controller;
 import com.example.vintage.dto.request.VinylRequestDTO;
 import com.example.vintage.dto.response.VinylResponseDTO;
 import com.example.vintage.service.Interface.VinylService;
+import com.example.vintage.service.GridFsService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +20,7 @@ import java.util.List;
 public class VinylController {
 
     private final VinylService vinylService;
+    private final GridFsService gridFsService;
 
     @PostMapping
     public ResponseEntity<VinylResponseDTO> createVinyl(@ModelAttribute VinylRequestDTO dto) {
@@ -47,5 +50,17 @@ public class VinylController {
     public ResponseEntity<List<VinylResponseDTO>> getAllVinyls() {
         List<VinylResponseDTO> vinyls = vinylService.getAllVinyls();
         return ResponseEntity.ok(vinyls);
+    }
+
+    @GetMapping("/{id}/image")
+    public ResponseEntity<byte[]> getVinylImage(@PathVariable String id) {
+        VinylResponseDTO vinyl = vinylService.getVinylById(id);
+        if (vinyl.getImage() == null) {
+            return ResponseEntity.notFound().build();
+        }
+        byte[] imageBytes = gridFsService.getFileContent(vinyl.getImage());
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(imageBytes);
     }
 } 

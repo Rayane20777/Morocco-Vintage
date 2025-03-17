@@ -1,0 +1,12 @@
+git:latest
+github:latest
+docker-plugin:latest
+docker-workflow:latest
+workflow-aggregator:latest
+pipeline-stage-view:latest
+maven-plugin:latest
+junit:latest
+sonar:latest
+jacoco:latest
+credentials:latest
+ssh-credentials:latest 

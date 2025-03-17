@@ -41,11 +41,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("Processing request to: {}", request.getRequestURI());
         String token = extractToken(request);
         log.info("Token present: {}", token != null);
+        
+        // If no token is present and the request is for a public endpoint, continue the chain
+        if (token == null && isPublicEndpoint(request.getRequestURI())) {
+            chain.doFilter(request, response);
+            return;
+        }
+        
+        // Check for blacklisted token
         if (token != null && tokenBlacklistService.isBlacklisted(token)) {
             log.warn("Blocked blacklisted token");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is blacklisted");
             return;
         }
+        
         try {
             if (token != null && tokenProvider.validateToken(token)) {
                 String username = tokenProvider.getUsernameFromToken(token);
@@ -72,12 +81,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.info("Authentication set in SecurityContext for user: {}", username);
+                
+                // Continue the filter chain only after successful authentication
+                chain.doFilter(request, response);
+                return;
             }
+            
+            // Token is present but invalid
+            if (token != null) {
+                log.error("Invalid token");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+                return;
+            }
+            
+            // No token present and not a public endpoint
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Full authentication is required to access this resource");
+            
         } catch (Exception e) {
             log.error("Authentication failed: {}", e.getMessage(), e);
+            SecurityContextHolder.clearContext();
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed: " + e.getMessage());
         }
+    }
 
-        chain.doFilter(request, response);
+    private boolean isPublicEndpoint(String uri) {
+        return uri != null && (
+            uri.startsWith("/api/vinyls") ||
+            uri.startsWith("/api/auth") ||
+            uri.startsWith("/api/public") ||
+            uri.startsWith("/api/images")
+        );
     }
 
     private String extractToken(HttpServletRequest request) {

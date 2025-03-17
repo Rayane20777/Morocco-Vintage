@@ -14,4 +14,5 @@ public interface UserService {
     User loadUserByUsername(String username);
     UserResponseDTO updateProfileImage(String userId, MultipartFile image);
     byte[] getProfileImage(String userId);
+    String getProfileImageId(String id);
 }

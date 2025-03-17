@@ -56,7 +56,7 @@ public class DiscogsSyncService {
                     String.class
                 );
 
-                System.out.println("Raw Response: " + rawResponse.getBody());
+                log.debug("Raw Response: {}", rawResponse.getBody());
 
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -66,14 +66,14 @@ public class DiscogsSyncService {
                     List<DiscogsRelease> releases = response.getReleases();
                     for (DiscogsRelease release : releases) {
                         try {
-                            System.out.println("Processing Release: " + release);
+                            log.debug("Processing Release: {}", release);
                             Vinyl vinylToSave = convertToVinyl(release);
                             if (vinylToSave != null) {
-                                System.out.println("Vinyl to Save: " + vinylToSave);
-                                saveVinylWithImage(release);
+                                log.debug("Vinyl to Save: {}", vinylToSave);
+                                saveVinylWithImage(vinylToSave, release);
                             }
                         } catch (Exception e) {
-                            System.err.println("Error processing release " + release.getId() + ": " + e.getMessage());
+                            log.error("Error processing release {}: {}", release.getId(), e.getMessage());
                             continue;
                         }
                     }
@@ -83,7 +83,7 @@ public class DiscogsSyncService {
                     hasMorePages = false;
                 }
             } catch (Exception e) {
-                System.err.println("Error fetching data from Discogs API: " + e.getMessage());
+                log.error("Error fetching data from Discogs API: {}", e.getMessage());
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ie) {
@@ -109,7 +109,7 @@ public class DiscogsSyncService {
                         Date dateAdded = dateFormat.parse(release.getDateAdded());
                         vinyl.setDateAdded(dateAdded);
                     } catch (ParseException e) {
-                        System.out.println("Error parsing date: " + e.getMessage());
+                        log.warn("Error parsing date: {}", e.getMessage());
                         vinyl.setDateAdded(new Date());
                     }
                 }
@@ -119,13 +119,33 @@ public class DiscogsSyncService {
                     vinyl.setName(basicInfo.getTitle() != null ? basicInfo.getTitle() : "Unknown Title");
                     vinyl.setYear(basicInfo.getYear());
 
-                    System.out.println("Thumb URL: " + basicInfo.getThumb());
-                    System.out.println("Cover Image URL: " + basicInfo.getCoverImage());
-
-                    vinyl.setThumbImageUrl(basicInfo.getThumb() != null && !basicInfo.getThumb().isEmpty() ? basicInfo.getThumb() : "default_thumb_url");
-                    vinyl.setCoverImageUrl(basicInfo.getCoverImage() != null && !basicInfo.getCoverImage().isEmpty() ? basicInfo.getCoverImage() : "default_cover_url");
-
-                    System.out.println("Raw Basic Information: " + basicInfo);
+                    // Validate and set image URLs
+                    String thumbUrl = basicInfo.getThumb();
+                    String coverUrl = basicInfo.getCoverImage();
+                    
+                    try {
+                        if (thumbUrl != null && !thumbUrl.isEmpty()) {
+                            new java.net.URL(thumbUrl);
+                            vinyl.setThumbImageUrl(thumbUrl);
+                        } else {
+                            vinyl.setThumbImageUrl(null);
+                        }
+                    } catch (java.net.MalformedURLException e) {
+                        log.warn("Invalid thumb URL: {}", thumbUrl);
+                        vinyl.setThumbImageUrl(null);
+                    }
+                    
+                    try {
+                        if (coverUrl != null && !coverUrl.isEmpty()) {
+                            new java.net.URL(coverUrl);
+                            vinyl.setCoverImageUrl(coverUrl);
+                        } else {
+                            vinyl.setCoverImageUrl(null);
+                        }
+                    } catch (java.net.MalformedURLException e) {
+                        log.warn("Invalid cover URL: {}", coverUrl);
+                        vinyl.setCoverImageUrl(null);
+                    }
                     
                     if (basicInfo.getArtists() != null) {
                         vinyl.setArtists(basicInfo.getArtists().stream()
@@ -147,34 +167,35 @@ public class DiscogsSyncService {
 
                     vinyl.setActive(true);
                     vinyl.setDescription("Vinyl Record");
-                    vinyl.setPrice(new BigDecimal("0.00"));
-                    vinyl.setBought_price(new BigDecimal("0.00"));
+                    vinyl.setPrice("0.00");
+                    vinyl.setBought_price("0.00");
                     vinyl.setStatus(ProductStatus.AVAILABLE);
                     vinyl.setImage(null);
                 } else {
-                    System.out.println("Basic Information is null for release ID: " + release.getId());
+                    log.warn("Basic Information is null for release ID: {}", release.getId());
                 }
                 return vinyl;
             }
         } catch (Exception e) {
-            System.err.println("Error converting release to vinyl: " + e.getMessage());
+            log.error("Error converting release to vinyl: {}", e.getMessage());
         }
         return null;
     }
 
-    private void saveVinylWithImage(DiscogsRelease release) {
+    private void saveVinylWithImage(Vinyl vinyl, DiscogsRelease release) {
         try {
-            if (release == null) return;
-            
-            Vinyl vinyl = convertToVinyl(release);
-            if (vinyl == null) return;
+            if (release == null || vinyl == null) return;
 
             // Handle image if URL is available
             if (release.getBasicInformation() != null && 
-                release.getBasicInformation().getCoverImage() != null) {
+                release.getBasicInformation().getCoverImage() != null &&
+                !release.getBasicInformation().getCoverImage().isEmpty()) {
                 
                 String imageUrl = release.getBasicInformation().getCoverImage();
+                
+                // Validate URL
                 try {
+                    java.net.URL url = new java.net.URL(imageUrl);
                     byte[] imageBytes = restTemplate.getForObject(imageUrl, byte[].class);
                     
                     if (imageBytes != null && imageBytes.length > 0) {
@@ -187,12 +208,33 @@ public class DiscogsSyncService {
                         String imageId = gridFsService.saveFile(multipartFile);
                         vinyl.setImage(imageId);
                     }
+                } catch (java.net.MalformedURLException e) {
+                    log.warn("Invalid image URL for vinyl {}: {}", vinyl.getName(), imageUrl);
                 } catch (Exception e) {
                     log.error("Error downloading or processing image from URL {}: {}", imageUrl, e.getMessage());
                 }
             }
 
+            // Set the URLs from BasicInformation
+            if (release.getBasicInformation() != null) {
+                String thumbUrl = release.getBasicInformation().getThumb();
+                String coverUrl = release.getBasicInformation().getCoverImage();
+
+                if (thumbUrl != null && !thumbUrl.isEmpty()) {
+                    vinyl.setThumbImageUrl(thumbUrl);
+                    vinyl.setThumb(thumbUrl);  // Set both fields for compatibility
+                }
+
+                if (coverUrl != null && !coverUrl.isEmpty()) {
+                    vinyl.setCoverImageUrl(coverUrl);
+                    vinyl.setCoverImage(coverUrl);  // Set both fields for compatibility
+                }
+            }
+
+            // Save the vinyl with all its data
+            log.debug("Saving vinyl with data: {}", vinyl);
             vinylRepository.save(vinyl);
+            log.info("Successfully saved vinyl: {} with ID: {}", vinyl.getName(), vinyl.getId());
         } catch (Exception e) {
             log.error("Error saving vinyl with image: {}", e.getMessage(), e);
         }

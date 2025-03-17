@@ -2,6 +2,7 @@ package com.example.vintage.controller;
 
 import com.example.vintage.dto.response.UserResponseDTO;
 import com.example.vintage.service.Interface.UserService;
+import com.example.vintage.service.GridFsService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,7 +18,8 @@ import java.util.List;
 @AllArgsConstructor
 public class UserController {
 
-    private UserService userService;
+    private final UserService userService;
+    private final GridFsService gridFsService;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -43,7 +45,11 @@ public class UserController {
 
     @GetMapping("/{id}/profile-image")
     public ResponseEntity<byte[]> getProfileImage(@PathVariable String id) {
-        byte[] imageBytes = userService.getProfileImage(id);
+        String imageId = userService.getProfileImageId(id);
+        if (imageId == null) {
+            return ResponseEntity.notFound().build();
+        }
+        byte[] imageBytes = gridFsService.getFileContent(imageId);
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(imageBytes);
