@@ -1,13 +1,14 @@
 import { Component, Input, Output, EventEmitter, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
+import type { ProductType } from "../../../../store/products/product.types"
 
 interface Product {
-  id: number
+  id: string // Changed from number to string
   name: string
   description: string
   price: number
-  boughtPrice: number
+  boughtPrice: number // Changed from bought_price to boughtPrice
   status: string
   type: string
   year: number
@@ -31,6 +32,18 @@ interface Product {
   condition?: string
 }
 
+interface ProductFormData {
+  name: string
+  description: string
+  price: number
+  boughtPrice: number // Changed from bought_price to boughtPrice
+  year: number
+  status: string
+  type: string
+  image?: File
+  // ... other form fields
+}
+
 @Component({
   selector: "app-edit-product-form",
   standalone: true,
@@ -40,7 +53,7 @@ interface Product {
 })
 export class EditProductFormComponent implements OnInit {
   @Input() product!: Product
-  @Output() formSubmit = new EventEmitter<Product>()
+  @Output() formSubmit = new EventEmitter<ProductFormData>()
   @Output() formCancel = new EventEmitter<void>()
 
   editedProduct!: Product
@@ -181,7 +194,14 @@ export class EditProductFormComponent implements OnInit {
       this.editedProduct.imageUrl = this.imagePreview as string
     }
 
-    this.formSubmit.emit(this.editedProduct)
+    const formData: ProductFormData = {
+      ...this.editedProduct,
+      boughtPrice: this.editedProduct.boughtPrice,
+      image: this.imageFile || undefined,
+      type: this.editedProduct.type as ProductType,
+    }
+
+    this.formSubmit.emit(formData)
   }
 
   cancel() {

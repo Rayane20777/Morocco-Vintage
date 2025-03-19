@@ -3,11 +3,11 @@ import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 
 interface Product {
-  id: number
+  id: string // Changed from number to string
   name: string
   description: string
   price: number
-  boughtPrice: number
+  boughtPrice: number // Changed from bought_price to boughtPrice
   status: string
   type: string
   year: number
@@ -31,6 +31,20 @@ interface Product {
   condition?: string
 }
 
+// Also update the ProductFormData interface to match
+interface ProductFormData {
+  id: string
+  name: string
+  description: string
+  price: number
+  boughtPrice: number // Changed from bought_price to boughtPrice
+  status: string
+  type: string
+  year: number
+  imageUrl?: string
+  // ... other form fields
+}
+
 @Component({
   selector: "app-add-product-form",
   standalone: true,
@@ -39,11 +53,11 @@ interface Product {
   styleUrls: ["./add-product-form.component.css"],
 })
 export class AddProductFormComponent {
-  @Output() formSubmit = new EventEmitter<Product>()
+  @Output() formSubmit = new EventEmitter<ProductFormData>()
   @Output() formCancel = new EventEmitter<void>()
 
   product: Product = {
-    id: 0,
+    id: "0",
     name: "",
     description: "",
     price: 0,
@@ -165,7 +179,7 @@ export class AddProductFormComponent {
       this.product.imageUrl = this.imagePreview as string
     }
 
-    this.formSubmit.emit(this.product)
+    this.formSubmit.emit(this.product as ProductFormData)
   }
 
   cancel() {

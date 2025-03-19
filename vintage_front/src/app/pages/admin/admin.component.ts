@@ -1,6 +1,8 @@
 import { Component } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { RouterModule, RouterLink, RouterLinkActive } from "@angular/router"
+import { Store } from "@ngrx/store"
+import { logout } from "../../store/auth/auth.actions"
 
 @Component({
   selector: "app-admin",
@@ -169,7 +171,7 @@ import { RouterModule, RouterLink, RouterLinkActive } from "@angular/router"
                   <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Your Profile</a>
                   <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Settings</a>
                   <div class="border-t dark:border-gray-700"></div>
-                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Sign out</a>
+                  <button (click)="logout()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Sign out</button>
                 </div>
               </div>
             </div>
@@ -216,12 +218,18 @@ export class AdminComponent {
   sidebarCollapsed = false
   userMenuOpen = false
 
+  constructor(private store: Store) {}
+
   toggleSidebar() {
     this.sidebarCollapsed = !this.sidebarCollapsed
   }
 
   toggleUserMenu() {
     this.userMenuOpen = !this.userMenuOpen
+  }
+
+  logout() {
+    this.store.dispatch(logout())
   }
 }
 

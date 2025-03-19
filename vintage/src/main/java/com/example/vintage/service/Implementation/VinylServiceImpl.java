@@ -1,7 +1,9 @@
 package com.example.vintage.service.Implementation;
 
 import com.example.vintage.exception.ResourceNotFoundException;
+import com.example.vintage.model.Product;
 import com.example.vintage.model.Vinyl;
+import com.example.vintage.repository.ProductRepository;
 import com.example.vintage.repository.VinylRepository;
 import com.example.vintage.dto.request.VinylRequestDTO;
 import com.example.vintage.dto.response.VinylResponseDTO;
@@ -23,6 +25,7 @@ public class VinylServiceImpl implements VinylService {
     private final VinylMapper vinylMapper;
     private final GridFsService gridFsService;
     private static final Logger log = LoggerFactory.getLogger(VinylServiceImpl.class);
+    private final ProductRepository productRepository;
 
     @Override
     public VinylResponseDTO createVinyl(VinylRequestDTO dto) {
@@ -44,9 +47,10 @@ public class VinylServiceImpl implements VinylService {
 
     @Override
     public List<VinylResponseDTO> getAllVinyls() {
-        return vinylRepository.findAll()
-                .stream()
-                .map(vinylMapper::toDto)
+        // Fetch all vinyls product
+        List<Product> products = productRepository.findByType("VINYL");
+        return products.stream()
+                .map(product -> vinylMapper.toDto((Vinyl) product))
                 .collect(Collectors.toList());
     }
 

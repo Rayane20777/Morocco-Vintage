@@ -1,40 +1,29 @@
-import { Component } from "@angular/core"
+import { Component, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { RouterLink, RouterLinkActive } from "@angular/router"
 import { AddProductFormComponent } from "../components/add-product-form/add-product-form.component"
 import { EditProductFormComponent } from "../components/edit-product-form/edit-product-form.component"
 import { ModalComponent } from "../../../components/modal/modal.component"
+import { Store } from "@ngrx/store"
+import type { Observable } from "rxjs"
+import { ProductActions } from "../../../store/products/product.actions"
+import type { Product, ProductState } from "../../../store/products/product.types"
 
-interface Product {
-  id: number
+// Define ProductType type
+type ProductType = "VINYL" | "ANTIQUE" | "EQUIPMENT" | "all"
+
+// Define form event types
+interface ProductFormData {
   name: string
   description: string
   price: number
   boughtPrice: number
-  status: string
-  type: string
   year: number
-  imageUrl?: string
-  artist?: string
-  category?: string
-
-  // Vinyl specific fields
-  artists?: string[]
-  genres?: string[]
-  styles?: string[]
-  format?: string[]
-  discogsId?: number
-
-  // Equipment specific fields
-  model?: string
-  equipmentCondition?: string
-  material?: string
-  origin?: string
-
-  // Antique specific fields
-  typeId?: string
-  condition?: string
+  status: string
+  type: ProductType
+  image?: File
+  [key: string]: any // This allows string indexing
 }
 
 @Component({
@@ -93,38 +82,38 @@ interface Product {
             ></span>
           </button>
           <button 
-            (click)="setProductType('vinyl')" 
+            (click)="setProductType('VINYL')" 
             class="px-4 py-2 font-medium text-sm transition-colors relative"
-            [class.text-teal]="selectedProductType === 'vinyl'"
-            [class.text-gray-600]="selectedProductType !== 'vinyl'"
+            [class.text-teal]="selectedProductType === 'VINYL'"
+            [class.text-gray-600]="selectedProductType !== 'VINYL'"
           >
             Vinyl Records
             <span 
-              *ngIf="selectedProductType === 'vinyl'" 
+              *ngIf="selectedProductType === 'VINYL'" 
               class="absolute bottom-0 left-0 w-full h-0.5 bg-teal"
             ></span>
           </button>
           <button 
-            (click)="setProductType('antique')" 
+            (click)="setProductType('ANTIQUE')" 
             class="px-4 py-2 font-medium text-sm transition-colors relative"
-            [class.text-teal]="selectedProductType === 'antique'"
-            [class.text-gray-600]="selectedProductType !== 'antique'"
+            [class.text-teal]="selectedProductType === 'ANTIQUE'"
+            [class.text-gray-600]="selectedProductType !== 'ANTIQUE'"
           >
             Antiques
             <span 
-              *ngIf="selectedProductType === 'antique'" 
+              *ngIf="selectedProductType === 'ANTIQUE'" 
               class="absolute bottom-0 left-0 w-full h-0.5 bg-teal"
             ></span>
           </button>
           <button 
-            (click)="setProductType('equipment')" 
+            (click)="setProductType('EQUIPMENT')" 
             class="px-4 py-2 font-medium text-sm transition-colors relative"
-            [class.text-teal]="selectedProductType === 'equipment'"
-            [class.text-gray-600]="selectedProductType !== 'equipment'"
+            [class.text-teal]="selectedProductType === 'EQUIPMENT'"
+            [class.text-gray-600]="selectedProductType !== 'EQUIPMENT'"
           >
             Equipment
             <span 
-              *ngIf="selectedProductType === 'equipment'" 
+              *ngIf="selectedProductType === 'EQUIPMENT'" 
               class="absolute bottom-0 left-0 w-full h-0.5 bg-teal"
             ></span>
           </button>
@@ -226,23 +215,12 @@ interface Product {
                       </div>
                       <div class="ml-4">
                         <div class="text-sm font-medium text-gray-900">{{ product.name }}</div>
-                        <div class="text-sm text-gray-500">{{ product.artist }}</div>
+                        <div class="text-sm text-gray-500">{{ product.artists?.[0] }}</div>
                       </div>
                     </div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                      [ngClass]="{
-                        'bg-blue-100 text-blue-800': product.type === 'vinyl',
-                        'bg-yellow-100 text-yellow-800': product.type === 'antique',
-                        'bg-green-100 text-green-800': product.type === 'equipment'
-                      }"
-                    >
-                      {{ product.type | titlecase }}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ product.category }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ product.type }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ product.genres?.[0] || product.type }}</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">£{{ product.boughtPrice.toFixed(2) }}</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">£{{ product.price.toFixed(2) }}</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm" [ngClass]="{'text-green-600': product.price - product.boughtPrice > 0, 'text-red-600': product.price - product.boughtPrice < 0}">
@@ -308,7 +286,7 @@ interface Product {
     </div>
   `,
 })
-export class ProductsComponent {
+export class ProductsComponent implements OnInit {
   filters = {
     search: "",
     category: "",
@@ -316,136 +294,38 @@ export class ProductsComponent {
     sort: "name",
   }
 
-  selectedProductType = "all"
+  selectedProductType: ProductType = "all"
 
-  products: Product[] = [
-    {
-      id: 1,
-      name: "Dark Side of the Moon",
-      description: "Iconic Pink Floyd album from 1973",
-      artist: "Pink Floyd",
-      category: "Rock",
-      price: 29.99,
-      boughtPrice: 15.0,
-      status: "Available",
-      type: "vinyl",
-      year: 1973
-    },
-    {
-      id: 2,
-      name: "Kind of Blue",
-      description: "Legendary jazz album by Miles Davis",
-      artist: "Miles Davis",
-      category: "Jazz",
-      price: 24.99,
-      boughtPrice: 12.5,
-      status: "Available",
-      type: "vinyl",
-      year: 1959
-    },
-    {
-      id: 3,
-      name: "Abbey Road",
-      description: "The Beatles' iconic final album",
-      artist: "The Beatles",
-      category: "Rock",
-      price: 27.99,
-      boughtPrice: 14.0,
-      status: "Available",
-      type: "vinyl",
-      year: 1969
-    },
-    {
-      id: 4,
-      name: "Thriller",
-      description: "Best-selling album of all time",
-      artist: "Michael Jackson",
-      category: "Pop",
-      price: 22.99,
-      boughtPrice: 11.5,
-      status: "Sold Out",
-      type: "vinyl",
-      year: 1982
-    },
-    {
-      id: 5,
-      name: "Back in Black",
-      description: "Classic AC/DC album",
-      artist: "AC/DC",
-      category: "Rock",
-      price: 25.99,
-      boughtPrice: 13.0,
-      status: "Available",
-      type: "vinyl",
-      year: 1980
-    },
-    {
-      id: 6,
-      name: "Vintage Clock",
-      description: "Beautiful antique wall clock from the Victorian era",
-      artist: "N/A",
-      category: "Antique",
-      price: 299.99,
-      boughtPrice: 150.0,
-      status: "Available",
-      type: "antique",
-      year: 1890
-    },
-    {
-      id: 7,
-      name: "Art Deco Lamp",
-      description: "Elegant Art Deco table lamp from the 1920s",
-      artist: "N/A",
-      category: "Antique",
-      price: 450.0,
-      boughtPrice: 225.0,
-      status: "Available",
-      type: "antique",
-      year: 1925
-    },
-    {
-      id: 8,
-      name: "Tube Amplifier",
-      description: "High-end Marshall tube amplifier",
-      artist: "Marshall",
-      category: "Equipment",
-      price: 899.99,
-      boughtPrice: 450.0,
-      status: "Available",
-      type: "equipment",
-      year: 2020
-    },
-    {
-      id: 9,
-      name: "Vintage Turntable",
-      description: "Professional Technics turntable in excellent condition",
-      artist: "Technics",
-      category: "Equipment",
-      price: 1299.99,
-      boughtPrice: 650.0,
-      status: "Available",
-      type: "equipment",
-      year: 1985
-    },
-    {
-      id: 10,
-      name: "Professional Microphone",
-      description: "High-quality Shure microphone for studio recording",
-      artist: "Shure",
-      category: "Equipment",
-      price: 249.99,
-      boughtPrice: 125.0,
-      status: "Sold Out",
-      type: "equipment",
-      year: 2021
-    },
-  ]
-
-  filteredProducts: Product[] = [...this.products]
+  products$: Observable<Product[]>
+  loading$: Observable<boolean>
+  error$: Observable<string | null>
 
   showAddProductForm = false
   showEditProductForm = false
   currentProduct: Product | null = null
+
+  products: Product[] = []
+  filteredProducts: Product[] = []
+
+  constructor(private store: Store<{ products: ProductState }>) {
+    this.products$ = this.store.select((state) => state.products.products)
+    this.loading$ = this.store.select((state) => state.products.loading)
+    this.error$ = this.store.select((state) => state.products.error)
+
+    // Subscribe to products$ to update local array
+    this.products$.subscribe((products) => {
+      this.products = products
+      this.applyFilters()
+    })
+  }
+
+  ngOnInit() {
+    this.loadProducts()
+  }
+
+  loadProducts() {
+    this.store.dispatch(ProductActions["loadProducts"]({ productType: this.selectedProductType }))
+  }
 
   showAddForm() {
     this.showAddProductForm = true
@@ -465,76 +345,100 @@ export class ProductsComponent {
     this.currentProduct = null
   }
 
-  onAddProduct(formProduct: Product) {
-    // Convert form product to our product format
-    const product: Product = {
-      ...formProduct,  // Copy all fields first
-      // Then override specific fields
-      id: this.products.length + 1,
-      artist: formProduct.artists?.[0] || "N/A",
-      category: formProduct.type === "vinyl" ? (formProduct.genres?.[0] || "Unknown") : formProduct.type,
-      type: formProduct.type.toLowerCase()
+  onAddProduct(formData: any) {
+    // Cast the form data to ensure type compatibility
+    const typedFormData: ProductFormData = {
+      ...formData,
+      type: formData.type as ProductType,
     }
-    this.products.push(product)
+
+    // Convert form data to FormData
+    const data = this.prepareFormData(typedFormData)
+
+    switch (this.selectedProductType) {
+      case "VINYL":
+        this.store.dispatch(ProductActions["createProduct"]({ product: data }))
+        break
+      case "ANTIQUE":
+        // ... handle antique creation
+        break
+      case "EQUIPMENT":
+        // ... handle equipment creation
+        break
+    }
     this.closeAddForm()
-    this.applyFilters()
   }
 
-  onEditProduct(formProduct: Product) {
-    const index = this.products.findIndex((p) => p.id === formProduct.id)
-    if (index !== -1) {
-      // Convert form product to our product format
-      const product: Product = {
-        ...formProduct,  // Copy all fields first
-        // Then override specific fields
-        artist: formProduct.artists?.[0] || "N/A",
-        category: formProduct.type === "vinyl" ? (formProduct.genres?.[0] || "Unknown") : formProduct.type,
-        type: formProduct.type.toLowerCase()
-      }
-      this.products[index] = product
+  onEditProduct(formData: any) {
+    if (!this.currentProduct) return
+
+    // Cast the form data to ensure type compatibility
+    const typedFormData: ProductFormData = {
+      ...formData,
+      type: formData.type as ProductType,
     }
+
+    // Convert form data to FormData
+    const data = this.prepareFormData(typedFormData)
+
+    this.store.dispatch(
+      ProductActions["updateProduct"]({
+        id: this.currentProduct.id,
+        product: data,
+      }),
+    )
     this.closeEditForm()
-    this.applyFilters()
   }
 
-  deleteProduct(id: number) {
+  deleteProduct(id: string) {
     if (confirm("Are you sure you want to delete this product?")) {
       this.products = this.products.filter((p) => p.id !== id)
       this.applyFilters()
     }
   }
 
-  setProductType(type: string) {
+  setProductType(type: ProductType) {
     this.selectedProductType = type
-    this.applyFilters()
+    this.loadProducts()
   }
 
   applyFilters() {
     this.filteredProducts = this.products.filter((product) => {
-      // Product type filter
       const typeMatch = this.selectedProductType === "all" || product.type === this.selectedProductType
-
-      // Search filter
       const searchMatch =
         this.filters.search === "" ||
         product.name.toLowerCase().includes(this.filters.search.toLowerCase()) ||
-        (product.artist && product.artist.toLowerCase().includes(this.filters.search.toLowerCase()))
-
-      // Category filter
-      const categoryMatch = this.filters.category === "" || product.category === this.filters.category
-
-      // Status filter
+        (product.artists &&
+          product.artists.some((artist) => artist.toLowerCase().includes(this.filters.search.toLowerCase())))
       const statusMatch = this.filters.status === "" || product.status === this.filters.status
 
-      return typeMatch && searchMatch && categoryMatch && statusMatch
+      return typeMatch && searchMatch && statusMatch
     })
 
-    // Sort
     if (this.filters.sort === "name") {
       this.filteredProducts.sort((a, b) => a.name.localeCompare(b.name))
     } else if (this.filters.sort === "price") {
       this.filteredProducts.sort((a, b) => a.price - b.price)
     }
+  }
+
+  private prepareFormData(formData: ProductFormData): FormData {
+    const data = new FormData()
+
+    Object.keys(formData).forEach((key) => {
+      const value = formData[key]
+      if (value !== undefined) {
+        if (Array.isArray(value)) {
+          data.append(key, JSON.stringify(value))
+        } else if (value instanceof File) {
+          data.append(key, value)
+        } else {
+          data.append(key, String(value))
+        }
+      }
+    })
+
+    return data
   }
 }
 

@@ -1,34 +1,43 @@
-import { Component } from "@angular/core"
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from "@angular/forms"
 import { CommonModule } from "@angular/common"
-import { RouterLink } from "@angular/router"
+import { RouterModule } from "@angular/router"
+import { Store } from "@ngrx/store"
+import { map } from "rxjs/operators"
+import * as AuthActions from "../../../store/auth/auth.actions"
+import { selectAuthState } from "../../../store/auth/auth.selectors"
+import { Component } from "@angular/core"
 
 @Component({
   selector: "app-login",
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: "./login.component.html",
   styleUrls: ["./login.component.css"],
 })
 export class LoginComponent {
   loginForm: FormGroup
+  loading$ = this.store.select(selectAuthState).pipe(map((state) => state.loading))
+  error$ = this.store.select(selectAuthState).pipe(map((state) => state.error))
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private store: Store,
+  ) {
     this.loginForm = this.fb.group({
-      username: ["", Validators.required],
-      password: ["", Validators.required],
+      username: ["admin", Validators.required],
+      password: ["admin", [Validators.required, Validators.minLength(6)]],
     })
   }
 
   onSubmit() {
     if (this.loginForm.valid) {
-      console.log("Login form submitted", this.loginForm.value)
-      // Implement login logic here
+      const { username, password } = this.loginForm.value
+      console.log("Submitting login form:", { username, password })
+      this.store.dispatch(AuthActions.login({ username, password }))
     } else {
       // Mark all fields as touched to trigger validation messages
       Object.keys(this.loginForm.controls).forEach((key) => {
-        const control = this.loginForm.get(key)
-        control?.markAsTouched()
+        this.loginForm.get(key)?.markAsTouched()
       })
     }
   }

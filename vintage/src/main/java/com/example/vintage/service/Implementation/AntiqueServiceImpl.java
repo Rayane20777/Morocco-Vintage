@@ -14,6 +14,8 @@ import com.example.vintage.service.GridFsService;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.example.vintage.model.Product;
+import com.example.vintage.repository.ProductRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -23,11 +25,14 @@ public class AntiqueServiceImpl implements AntiqueService {
     private final AntiqueRepository antiqueRepository;
     private final AntiqueMapper antiqueMapper;
     private final GridFsService gridFsService;
+    private final ProductRepository productRepository;
 
     @Override
     public List<AntiqueResponseDTO> getAllAntiques() {
-        return antiqueRepository.findAll().stream()
-                .map(antiqueMapper::toResponseDTO)
+        // Fetch all antique
+        List<Product> products = productRepository.findByType("ANTIQUE");
+        return products.stream()
+                .map(product -> antiqueMapper.toResponseDTO((Antique) product))
                 .collect(Collectors.toList());
     }
 

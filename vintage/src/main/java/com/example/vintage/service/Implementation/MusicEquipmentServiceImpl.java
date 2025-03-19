@@ -5,7 +5,9 @@ import com.example.vintage.dto.response.MusicEquipmentResponseDTO;
 import com.example.vintage.exception.ResourceNotFoundException;
 import com.example.vintage.mapper.MusicEquipmentMapper;
 import com.example.vintage.model.MusicEquipment;
+import com.example.vintage.model.Product;
 import com.example.vintage.repository.MusicEquipmentRepository;
+import com.example.vintage.repository.ProductRepository;
 import com.example.vintage.service.GridFsService;
 import com.example.vintage.service.Interface.MusicEquipmentService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class MusicEquipmentServiceImpl implements MusicEquipmentService {
     private final MusicEquipmentRepository musicEquipmentRepository;
     private final MusicEquipmentMapper musicEquipmentMapper;
     private final GridFsService gridFsService;
+    private final ProductRepository productRepository;
 
     @Override
     @Transactional
@@ -78,8 +81,9 @@ public class MusicEquipmentServiceImpl implements MusicEquipmentService {
 
     @Override
     public List<MusicEquipmentResponseDTO> getAllMusicEquipment() {
-        return musicEquipmentRepository.findAll().stream()
-                .map(musicEquipmentMapper::toDto)
+      List<Product> products = productRepository.findByType("MUSIC_EQUIPMENT");
+        return products.stream()
+                .map(product -> musicEquipmentMapper.toDto((MusicEquipment) product))
                 .collect(Collectors.toList());
     }
 } 

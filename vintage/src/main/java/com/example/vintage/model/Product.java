@@ -42,6 +42,24 @@ public class Product {
     @Field("dateAdded")
     private Date dateAdded;
 
+    public void postLoad() {
+        if (priceStr != null && !priceStr.isEmpty()) {
+            try {
+                this.price = new BigDecimal(priceStr);
+            } catch (NumberFormatException e) {
+                this.price = BigDecimal.ZERO;
+            }
+        }
+        
+        if (boughtPriceStr != null && !boughtPriceStr.isEmpty()) {
+            try {
+                this.bought_price = new BigDecimal(boughtPriceStr);
+            } catch (NumberFormatException e) {
+                this.bought_price = BigDecimal.ZERO;
+            }
+        }
+    }
+
     public BigDecimal getPrice() {
         if (price == null && priceStr != null && !priceStr.isEmpty()) {
             try {
@@ -94,5 +112,13 @@ public class Product {
     public void setBought_price(BigDecimal price) {
         this.bought_price = price;
         this.boughtPriceStr = price != null ? price.toString() : "0.00";
+    }
+
+    @Override
+    public String toString() {
+        getPrice();
+        getBought_price();
+        
+        return super.toString();
     }
 }
