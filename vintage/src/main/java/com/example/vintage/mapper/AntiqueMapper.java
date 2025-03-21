@@ -14,6 +14,7 @@ import java.util.Date;
 public interface AntiqueMapper {
 
     @Mapping(target = "bought_price", source = "bought_price")
+    @Mapping(target = "type", constant = "ANTIQUE")
     AntiqueResponseDTO toResponseDTO(Antique antique);
 
     @Mapping(target = "image", ignore = true)
@@ -21,6 +22,7 @@ public interface AntiqueMapper {
     @Mapping(target = "dateAdded", expression = "java(new java.util.Date())")
     @Mapping(target = "active", constant = "true")
     @Mapping(target = "bought_price", source = "bought_price")
+    @Mapping(target = "type", constant = "ANTIQUE")
     Antique toEntity(AntiqueRequestDTO dto) throws IOException;
 
     @Mapping(target = "id", ignore = true)
@@ -28,6 +30,7 @@ public interface AntiqueMapper {
     @Mapping(target = "image", ignore = true)
     @Mapping(target = "bought_price", source = "bought_price")
     @Mapping(target = "active", ignore = true)
+    @Mapping(target = "type", constant = "ANTIQUE")
     void updateEntity(AntiqueRequestDTO dto, @MappingTarget Antique entity) throws IOException;
 
     @Named("byteArrayToBase64")

@@ -14,13 +14,16 @@ public interface MusicEquipmentMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "dateAdded", ignore = true)
     @Mapping(target = "image", ignore = true)
+    @Mapping(target = "type", constant = "MUSIC_EQUIPMENT")
     MusicEquipment toEntity(MusicEquipmentRequestDTO dto);
     
+    @Mapping(target = "type", constant = "MUSIC_EQUIPMENT")
     MusicEquipmentResponseDTO toDto(MusicEquipment entity);
     
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "dateAdded", ignore = true)
     @Mapping(target = "image", ignore = true)
+    @Mapping(target = "type", constant = "MUSIC_EQUIPMENT")
     void updateEntityFromDto(MusicEquipmentRequestDTO dto, @MappingTarget MusicEquipment entity);
 
     default String map(MultipartFile value) {

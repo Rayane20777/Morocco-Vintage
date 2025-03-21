@@ -46,20 +46,6 @@ interface Filter {
             <h2 class="font-semibold mb-4">Filters</h2>
             <div class="space-y-4">
               <div>
-                <h3 class="font-medium mb-2">Category</h3>
-                @for (category of categories; track category) {
-                  <label class="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      [value]="category"
-                      (change)="updateFilter('category', category, $event)"
-                      [checked]="filters.category.includes(category)"
-                    >
-                    <span>{{ category }}</span>
-                  </label>
-                }
-              </div>
-              <div>
                 <h3 class="font-medium mb-2">Price Range</h3>
                 <div class="flex items-center space-x-2">
                   <input
@@ -317,4 +303,3 @@ export class BrowseComponent {
     })
   }
 }
-

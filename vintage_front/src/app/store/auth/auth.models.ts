@@ -13,7 +13,9 @@ export interface AuthState {
   username: string | null;
   roles: Role[];
   isAuthenticated: boolean;
+  isAdmin: boolean;
   error: string | null;
   loading: boolean;
   initialized: boolean;
+  user: any | null;
 } 

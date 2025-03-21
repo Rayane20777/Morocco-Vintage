@@ -1,15 +1,17 @@
 import { createReducer, on } from "@ngrx/store"
 import * as AuthActions from "./auth.actions"
-import   { AuthState } from "./auth.models"
+import { AuthState } from "./auth.models"
 
 export const initialState: AuthState = {
   token: null,
   username: null,
   roles: [],
   isAuthenticated: false,
+  isAdmin: false,
   error: null,
   loading: false,
   initialized: false,
+  user: null,
 }
 
 export const authReducer = createReducer(
@@ -28,15 +30,18 @@ export const authReducer = createReducer(
     loading: true,
     error: null,
   })),
-  on(AuthActions.loginSuccess, (state, { response }) => ({
+  on(AuthActions.loginSuccess, (state, { user, token }) => ({
     ...state,
-    token: response.token,
-    username: response.username,
-    roles: response.roles,
     isAuthenticated: true,
+    isAdmin: user?.roles?.some(
+      (role: { authority: string }) => role.authority === "ADMIN" || role.authority === "ROLE_ADMIN",
+    ),
+    user,
+    token,
+    roles: user?.roles || [],
     error: null,
     loading: false,
-    initialized: true, // Make sure initialized is set to true
+    initialized: true,
   })),
   on(AuthActions.loginFailure, (state, { error }) => ({
     ...state,

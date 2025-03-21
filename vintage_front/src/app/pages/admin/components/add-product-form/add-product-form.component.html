@@ -16,12 +16,12 @@
       </button>
       <button 
         type="button" 
-        (click)="setProductType('EQUIPMENT')" 
+        (click)="setProductType('MUSIC_EQUIPMENT')" 
         class="px-4 py-2 rounded-md border transition-colors"
-        [class.bg-teal]="product.type === 'EQUIPMENT'"
-        [class.text-white]="product.type === 'EQUIPMENT'"
-        [class.border-teal]="product.type === 'EQUIPMENT'"
-        [class.border-gray-300]="product.type !== 'EQUIPMENT'"
+        [class.bg-teal]="product.type === 'MUSIC_EQUIPMENT'"
+        [class.text-white]="product.type === 'MUSIC_EQUIPMENT'"
+        [class.border-teal]="product.type === 'MUSIC_EQUIPMENT'"
+        [class.border-gray-300]="product.type !== 'MUSIC_EQUIPMENT'"
       >
         Equipment
       </button>
@@ -182,7 +182,7 @@
   </div>
 
   <!-- Equipment-specific fields -->
-  <div *ngIf="product.type === 'EQUIPMENT'" class="space-y-6">
+  <div *ngIf="product.type === 'MUSIC_EQUIPMENT'" class="space-y-6">
     <h3 class="text-lg font-medium mb-4">Equipment Details</h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div>

@@ -46,5 +46,19 @@ export class AuthService {
     // If no backend call is needed, just return an observable that completes
     return of(null)
   }
+
+  // Add a method to check if the user has admin role:
+  isAdmin(): boolean {
+    const rolesStr = localStorage.getItem("roles")
+    if (!rolesStr) return false
+
+    try {
+      const roles = JSON.parse(rolesStr)
+      return Array.isArray(roles) && roles.some((role) => role.authority === "ADMIN" || role.authority === "ROLE_ADMIN")
+    } catch (e) {
+      console.error("Error parsing roles:", e)
+      return false
+    }
+  }
 }
 

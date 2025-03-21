@@ -26,7 +26,7 @@ interface Equipment {
       <h1 class="text-3xl font-bold mb-6">Music Equipment</h1>
       
       <div class="mb-8 flex flex-col md:flex-row gap-4">
-        <div class="w-full md:w-1/4">
+        <div class="w-full md:w-1/3">
           <input
             type="text"
             [(ngModel)]="searchTerm"
@@ -35,7 +35,7 @@ interface Equipment {
             class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal focus:border-transparent"
           />
         </div>
-        <div class="w-full md:w-1/4">
+        <div class="w-full md:w-1/3">
           <select
             [(ngModel)]="selectedCondition"
             (ngModelChange)="filterEquipment()"
@@ -45,17 +45,7 @@ interface Equipment {
             <option *ngFor="let condition of uniqueConditions" [value]="condition">{{ condition }}</option>
           </select>
         </div>
-        <div class="w-full md:w-1/4">
-          <select
-            [(ngModel)]="selectedOrigin"
-            (ngModelChange)="filterEquipment()"
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal focus:border-transparent"
-          >
-            <option value="">All Origins</option>
-            <option *ngFor="let origin of uniqueOrigins" [value]="origin">{{ origin }}</option>
-          </select>
-        </div>
-        <div class="w-full md:w-1/4">
+        <div class="w-full md:w-1/3">
           <select
             [(ngModel)]="sortBy"
             (ngModelChange)="filterEquipment()"

@@ -1,74 +1,95 @@
-import { Injectable } from '@angular/core';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of } from 'rxjs';
-import { map, mergeMap, catchError } from 'rxjs/operators';
-import { ApiService } from '../../services/api.service';
-import { ProductActions } from './product.actions';
+import { Injectable } from "@angular/core"
+import { Actions, createEffect, ofType } from "@ngrx/effects"
+import { Store } from "@ngrx/store"
+import { of } from "rxjs"
+import { map, catchError, switchMap, withLatestFrom, take } from "rxjs/operators"
+import { ApiService } from "../../services/api.service"
+import { ProductActions } from "./product.actions"
+import { selectAuthToken } from "../auth/auth.selectors"
+import { selectSelectedProductType } from "./product.selectors"
+import { ErrorHandlerService } from "../../services/error-handler.service"
 
 @Injectable()
 export class ProductEffects {
+  constructor(
+    private actions$: Actions,
+    private apiService: ApiService,
+    private store: Store,
+    private errorHandler: ErrorHandlerService,
+  ) {}
+
   loadProducts$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.loadProducts),
-      mergeMap(({ productType }) => {
-        let request$;
-        switch (productType) {
-          case 'VINYL':
-            request$ = this.apiService.getAllVinyls();
-            break;
-          case 'ANTIQUE':
-            request$ = this.apiService.getAllAntiques();
-            break;
-          default:
-            request$ = this.apiService.getAllVinyls(); // Default to vinyls
-        }
-        
-        return request$.pipe(
-          map(products => ProductActions.loadProductsSuccess({ products })),
-          catchError(error => of(ProductActions.loadProductsFailure({ error: error.message })))
-        );
-      })
-    )
-  );
+      switchMap((action) => {
+        return this.apiService.getProducts(action.productType || "VINYL").pipe(
+          map((products) => ProductActions.loadProductsSuccess({ products })),
+          catchError((error) => {
+            // Use the error handler service to handle token expiration
+            const errorMessage = this.errorHandler.handleError(error)
+            return of(ProductActions.loadProductsFailure({ error: errorMessage }))
+          }),
+        )
+      }),
+    ),
+  )
 
   createProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.createProduct),
-      mergeMap(({ product }) =>
-        this.apiService.createVinyl(product).pipe(
-          map(newProduct => ProductActions.createProductSuccess({ product: newProduct })),
-          catchError(error => of(ProductActions.createProductFailure({ error: error.message })))
-        )
-      )
-    )
-  );
+      switchMap((action) =>
+        this.apiService.createProduct(action.product).pipe(
+          map((product) => ProductActions.createProductSuccess({ product })),
+          catchError((error) => {
+            console.error("Error creating product:", error)
+            return of(ProductActions.createProductFailure({ error: error.message }))
+          }),
+        ),
+      ),
+    ),
+  )
 
   updateProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.updateProduct),
-      mergeMap(({ id, product }) =>
-        this.apiService.updateVinyl(id, product).pipe(
-          map(updatedProduct => ProductActions.updateProductSuccess({ product: updatedProduct })),
-          catchError(error => of(ProductActions.updateProductFailure({ error: error.message })))
-        )
-      )
-    )
-  );
+      switchMap((action) =>
+        this.apiService.updateProduct(action.id, action.product).pipe(
+          map((product) => ProductActions.updateProductSuccess({ product })),
+          catchError((error) => {
+            console.error("Error updating product:", error)
+            return of(ProductActions.updateProductFailure({ error: error.message }))
+          }),
+        ),
+      ),
+    ),
+  )
 
   deleteProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.deleteProduct),
-      mergeMap(({ id }) =>
-        this.apiService.deleteVinyl(id).pipe(
-          map(() => ProductActions.deleteProductSuccess({ id })),
-          catchError(error => of(ProductActions.deleteProductFailure({ error: error.message })))
+      switchMap((action) => {
+        return this.store.select(selectSelectedProductType).pipe(
+          take(1),
+          switchMap((productType) => {
+            switch (productType) {
+              case "VINYL":
+                return this.apiService.deleteVinyl(action.id)
+              case "ANTIQUE":
+                return this.apiService.deleteAntique(action.id)
+              case "MUSIC_EQUIPMENT":
+                return this.apiService.deleteEquipment(action.id)
+              default:
+                throw new Error(`Invalid product type: ${productType}`)
+            }
+          }),
+          map(() => ProductActions.deleteProductSuccess({ id: action.id })),
+          catchError((error) => {
+            console.error("Error deleting product:", error)
+            return of(ProductActions.deleteProductFailure({ error: error.message }))
+          }),
         )
-      )
-    )
-  );
+      }),
+    ),
+  )
+}
 
-  constructor(
-    private actions$: Actions,
-    private apiService: ApiService
-  ) {}
-} 

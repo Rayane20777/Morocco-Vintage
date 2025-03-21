@@ -1,12 +1,14 @@
 import { createReducer, on } from '@ngrx/store';
-import { ProductState } from './product.types';
 import { ProductActions } from './product.actions';
+import type { ProductState } from './product.types';
+import { ProductType } from './product.types';
 
 export const initialState: ProductState = {
   products: [],
   loading: false,
   error: null,
-  selectedProduct: null
+  selectedProduct: null,
+  selectedProductType: 'VINYL'
 };
 
 export const productReducer = createReducer(
@@ -22,13 +24,14 @@ export const productReducer = createReducer(
   on(ProductActions.loadProductsSuccess, (state, { products }) => ({
     ...state,
     products,
-    loading: false
+    loading: false,
+    error: null
   })),
   
   on(ProductActions.loadProductsFailure, (state, { error }) => ({
     ...state,
-    error,
-    loading: false
+    loading: false,
+    error
   })),
   
   // Create Product
@@ -41,13 +44,14 @@ export const productReducer = createReducer(
   on(ProductActions.createProductSuccess, (state, { product }) => ({
     ...state,
     products: [...state.products, product],
-    loading: false
+    loading: false,
+    error: null
   })),
   
   on(ProductActions.createProductFailure, (state, { error }) => ({
     ...state,
-    error,
-    loading: false
+    loading: false,
+    error
   })),
   
   // Update Product
@@ -59,14 +63,15 @@ export const productReducer = createReducer(
   
   on(ProductActions.updateProductSuccess, (state, { product }) => ({
     ...state,
-    products: state.products.map(p => p.id === product.id ? product : p),
-    loading: false
+    products: state.products.map((p) => (p.id === product.id ? product : p)),
+    loading: false,
+    error: null
   })),
   
   on(ProductActions.updateProductFailure, (state, { error }) => ({
     ...state,
-    error,
-    loading: false
+    loading: false,
+    error
   })),
   
   // Delete Product
@@ -78,24 +83,30 @@ export const productReducer = createReducer(
   
   on(ProductActions.deleteProductSuccess, (state, { id }) => ({
     ...state,
-    products: state.products.filter(p => p.id !== id),
-    loading: false
+    products: state.products.filter((p) => p.id !== id),
+    loading: false,
+    error: null
   })),
   
   on(ProductActions.deleteProductFailure, (state, { error }) => ({
     ...state,
-    error,
-    loading: false
+    loading: false,
+    error
   })),
   
   // Select Product
   on(ProductActions.selectProduct, (state, { id }) => ({
     ...state,
-    selectedProduct: state.products.find(p => p.id === id) || null
+    selectedProduct: state.products.find((p) => p.id === id) || null
   })),
   
   on(ProductActions.clearSelectedProduct, (state) => ({
     ...state,
     selectedProduct: null
+  })),
+  
+  on(ProductActions.setProductType, (state, { productType }) => ({
+    ...state,
+    selectedProductType: productType
   }))
 ); 

@@ -98,7 +98,7 @@ export class AddProductFormComponent {
       this.product.origin = undefined
       this.product.typeId = undefined
       this.product.condition = undefined
-    } else if (this.product.type === "EQUIPMENT") {
+    } else if (this.product.type === "MUSIC_EQUIPMENT") {
       this.product.model = ""
       this.product.equipmentCondition = "GOOD"
       this.product.material = ""

@@ -15,4 +15,5 @@ public class ProductResponseDTO {
     private int year;
     private ProductStatus status;
     private String image;
+    private String type;
 } 

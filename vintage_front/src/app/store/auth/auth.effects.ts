@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core"
 import { Actions, createEffect, ofType, OnInitEffects } from "@ngrx/effects"
 import { of } from "rxjs"
-import { catchError, map, tap, mergeMap } from "rxjs/operators"
+import { catchError, map, tap, mergeMap, switchMap } from "rxjs/operators"
 import { Router } from "@angular/router"
 import { AuthService } from "../../services/auth.service"
 import * as AuthActions from "./auth.actions"
@@ -22,11 +22,11 @@ export class AuthEffects implements OnInitEffects {
           console.log("Restoring auth state:", { token, username, roles })
           return of(
             AuthActions.loginSuccess({
-              response: {
-                token,
+              user: {
                 username,
                 roles,
               },
+              token,
             }),
             // Always dispatch authInitialized after loginSuccess
             AuthActions.authInitialized(),
@@ -44,50 +44,48 @@ export class AuthEffects implements OnInitEffects {
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.login),
-      tap(({ username, password }) => console.log("Login attempt for user:", username)),
-      mergeMap(({ username, password }) => {
-        // For demo purposes, simulate a successful login for admin/admin
-        if (username === "admin" && password === "admin") {
-          return of(
-            AuthActions.loginSuccess({
-              response: {
-                token: "demo-token-123",
-                username: "admin",
-                roles: [{ authority: "ADMIN" }],
+      switchMap(({ username, password }) =>
+        this.authService.login(username, password).pipe(
+          map((response) => {
+            // Make sure your login response includes a token
+            console.log("Login successful, token received:", !!response.token)
+            return AuthActions.loginSuccess({
+              user: {
+                username: response.username || username,
+                roles: response.roles || [{ authority: "USER" }],
               },
-            }),
-          )
-        }
-
-        // Otherwise, try the actual service
-        return this.authService.login(username, password).pipe(
-          tap((response) => console.log("Login response:", response)),
-          map((response) => AuthActions.loginSuccess({ response })),
+              token: response.token,
+            })
+          }),
           catchError((error) => {
             console.error("Login error:", error)
-            return of(AuthActions.loginFailure({ error: error.message || "Login failed" }))
+            return of(AuthActions.loginFailure({ error: error.message }))
           }),
-        )
-      }),
+        ),
+      ),
     ),
   )
 
-  loginSuccess$ = createEffect(
+  loginSuccessEffect$ = createEffect(
     () =>
       this.actions$.pipe(
         ofType(AuthActions.loginSuccess),
-        tap(({ response }) => {
-          console.log("Login success, storing auth data:", response)
-          localStorage.setItem("token", response.token)
-          localStorage.setItem("username", response.username)
-          localStorage.setItem("roles", JSON.stringify(response.roles))
+        tap(({ user, token }) => {
+          console.log("Login success, storing auth data:", { user, token })
+          localStorage.setItem("token", token)
+          localStorage.setItem("username", user.username)
+          localStorage.setItem("roles", JSON.stringify(user.roles))
 
           // Check if user is admin and redirect accordingly
-          const isAdmin = response.roles.some((role) => role.authority === "ADMIN")
-          console.log("User is admin:", isAdmin)
+          const isAdmin =
+            user.roles &&
+            user.roles.some(
+              (role: { authority: string }) => role.authority === "ADMIN" || role.authority === "ROLE_ADMIN",
+            )
+          console.log("User is admin:", isAdmin, "Roles:", user.roles)
 
           if (isAdmin) {
-            console.log("Navigating to admin dashboard after successful login")
+            console.log("Navigating to admin dashboard")
             this.router.navigate(["/admin/dashboard"])
           } else {
             console.log("Navigating to /browse after successful login")
@@ -120,12 +118,13 @@ export class AuthEffects implements OnInitEffects {
       this.actions$.pipe(
         ofType(AuthActions.logout),
         tap(() => {
-          console.log("Logging out...")
+          console.log("Logging out and clearing all storage...")
 
-          // Clear local storage (frontend logout)
+          // Clear all local storage items
           localStorage.removeItem("token")
           localStorage.removeItem("username")
           localStorage.removeItem("roles")
+          localStorage.clear() // Clear any other items that might be present
 
           // Call the backend logout endpoint if needed
           this.authService.logout().subscribe({

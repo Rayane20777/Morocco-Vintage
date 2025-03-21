@@ -1,4 +1,4 @@
-export type ProductType = "VINYL" | "ANTIQUE" | "EQUIPMENT"
+export type ProductType = 'VINYL' | 'ANTIQUE' | 'MUSIC_EQUIPMENT';
 
 export interface Product {
   id: string
@@ -9,6 +9,7 @@ export interface Product {
   status: string
   type: ProductType
   year: number
+  imageUrl?: string
   image?: string
 
   // Vinyl specific fields
@@ -34,6 +35,7 @@ export interface ProductState {
   selectedProduct: Product | null
   loading: boolean
   error: string | null
+  selectedProductType: ProductType
 }
 
 // Fix the ProductFormData interface to include boughtPrice and add index signature
@@ -41,7 +43,7 @@ export interface ProductFormData {
   name: string
   description: string
   price: number
-  boughtPrice: number // Changed from bought_price to boughtPrice for consistency
+  boughtPrice: number
   year: number
   status: string
   type: ProductType

@@ -19,12 +19,15 @@ public interface VinylMapper {
     @Mapping(target = "dateAdded", expression = "java(new Date())")
     @Mapping(target = "image", ignore = true)
     @Mapping(source = "bought_price", target = "bought_price")
+    @Mapping(target = "type", constant = "VINYL")
     Vinyl toEntity(VinylRequestDTO dto);
 
     @Mapping(source = "bought_price", target = "bought_price")
+    @Mapping(target = "type", constant = "VINYL")
     VinylResponseDTO toDto(Vinyl vinyl);
 
     @Mapping(source = "bought_price", target = "bought_price")
+    @Mapping(target = "type", constant = "VINYL")
     void updateVinylFromDto(VinylRequestDTO dto, @MappingTarget Vinyl vinyl);
 
     default byte[] map(MultipartFile value) {

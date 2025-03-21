@@ -1,27 +1,29 @@
 import { createSelector, createFeatureSelector } from "@ngrx/store"
 import type { AuthState } from "./auth.models"
 
-export const selectAuthState = createFeatureSelector<AuthState>("auth")
+export const selectAuth = createFeatureSelector<AuthState>("auth")
 
-export const selectAuthToken = createSelector(selectAuthState, (state: AuthState) => {
+export const selectAuthToken = createSelector(selectAuth, (state: AuthState) => {
   console.log("selectAuthToken - token:", state.token)
   return state.token
 })
 
-export const selectAuthLoading = createSelector(selectAuthState, (state: AuthState) => state.loading)
+export const selectAuthLoading = createSelector(selectAuth, (state: AuthState) => state.loading)
 
-export const selectAuthError = createSelector(selectAuthState, (state: AuthState) => state.error)
+export const selectAuthError = createSelector(selectAuth, (state: AuthState) => state.error)
 
-export const selectIsAuthenticated = createSelector(selectAuthState, (state) => {
+export const selectIsAuthenticated = createSelector(selectAuth, (state: AuthState) => {
   console.log("selectIsAuthenticated - state:", state)
   return state.isAuthenticated
 })
 
-export const selectAuthInitialized = createSelector(selectAuthState, (state: AuthState) => state.initialized)
+export const selectAuthInitialized = createSelector(selectAuth, (state: AuthState) => state.initialized)
 
-export const selectUserRoles = createSelector(selectAuthState, (state) => state.roles)
+export const selectUserRoles = createSelector(selectAuth, (state) => state.roles)
 
-export const selectIsAdmin = createSelector(selectUserRoles, (roles) =>
-  roles.some((role) => role.authority === "ADMIN"),
-)
+export const selectIsAdmin = createSelector(selectAuth, (state: AuthState) => state.isAdmin)
+
+export const selectAuthUser = createSelector(selectAuth, (state: AuthState) => state.user)
+
+// Add other selectors as needed
 
