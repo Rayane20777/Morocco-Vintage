@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core"
 import { HttpClient } from "@angular/common/http"
-import { Observable, of } from "rxjs"
-import { map, catchError } from "rxjs/operators"
+import { Observable, of, throwError } from "rxjs"
+import { map, catchError, tap } from "rxjs/operators"
 import { Product, ProductType } from "../store/products/product.types"
 
 @Injectable({
@@ -110,12 +110,39 @@ export class ApiService {
   }
 
   deleteVinyl(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/admin/vinyls/${id}`).pipe(
+    console.log('Attempting to delete vinyl:', id);
+    
+    if (!this.ensureAuthenticated()) {
+      console.error('Authentication check failed');
+      return throwError(() => new Error('Authentication required'));
+    }
+
+    const token = localStorage.getItem('token');
+    console.log('Using token for delete request:', token); // Debug log
+
+    // Add explicit headers
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+
+    return this.http.delete<void>(`${this.apiUrl}/admin/vinyls/${id}`, { headers }).pipe(
+      tap(() => console.log('Delete vinyl request successful')),
       catchError((error) => {
-        console.error("Error deleting vinyl:", error)
-        throw error
+        console.error("Error deleting vinyl:", error);
+        if (error.status === 401) {
+          console.error("Unauthorized - Token details:", {
+            exists: !!token,
+            length: token?.length,
+            firstChars: token?.substring(0, 10) + '...'
+          });
+          localStorage.clear();
+          // You might want to dispatch a logout action here
+          return throwError(() => new Error('Authentication failed - Please log in again'));
+        }
+        return throwError(() => error);
       }),
-    )
+    );
   }
 
   createAntique(product: FormData): Observable<Product> {
@@ -139,22 +166,60 @@ export class ApiService {
   }
 
   deleteAntique(id: string): Observable<void> {
+    if (!this.ensureAuthenticated()) {
+      return throwError(() => new Error('Authentication required'));
+    }
+
     return this.http.delete<void>(`${this.apiUrl}/admin/antiques/${id}`).pipe(
       catchError((error) => {
-        console.error("Error deleting antique:", error)
-        throw error
+        console.error("Error deleting antique:", error);
+        if (error.status === 401) {
+          console.error("Unauthorized - Please log in again");
+        }
+        throw error;
       }),
-    )
+    );
   }
 
+  // Add method to check auth status
+  private ensureAuthenticated(): boolean {
+    const token = localStorage.getItem('token');
+    console.log('Current token:', token); // Debug log
+    
+    if (!token) {
+      console.error('No authentication token found');
+      return false;
+    }
+
+    // Improved token validation
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        console.error('Invalid token structure');
+        localStorage.clear(); // Clear invalid token
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.error('Token validation failed:', e);
+      localStorage.clear(); // Clear invalid token
+      return false;
+    }
+  }
+
+  // Update admin endpoints to check auth first
   createEquipment(product: FormData): Observable<Product> {
+    if (!this.ensureAuthenticated()) {
+      return throwError(() => new Error('Authentication required'));
+    }
+    
     return this.http.post<Product>(`${this.apiUrl}/admin/music-equipment`, product).pipe(
       map((response) => this.mapResponseToProducts([response])[0]),
       catchError((error) => {
-        console.error("Error creating equipment:", error)
-        throw error
+        console.error("Error creating equipment:", error);
+        throw error;
       }),
-    )
+    );
   }
 
   updateEquipment(id: string, product: FormData): Observable<Product> {
@@ -168,12 +233,19 @@ export class ApiService {
   }
 
   deleteEquipment(id: string): Observable<void> {
+    if (!this.ensureAuthenticated()) {
+      return throwError(() => new Error('Authentication required'));
+    }
+
     return this.http.delete<void>(`${this.apiUrl}/admin/music-equipment/${id}`).pipe(
       catchError((error) => {
-        console.error("Error deleting equipment:", error)
-        throw error
+        console.error("Error deleting equipment:", error);
+        if (error.status === 401) {
+          console.error("Unauthorized - Please log in again");
+        }
+        throw error;
       }),
-    )
+    );
   }
 
   getProducts(productType: string): Observable<Product[]> {
@@ -249,11 +321,33 @@ export class ApiService {
     }
   }
 
-  deleteProduct(id: string, token?: string): Observable<void> {
-    // Since we don't have the product type in the delete action,
-    // we'll need to get it from the store or pass it as a parameter
-    // For now, we'll throw an error to indicate this needs to be handled
-    throw new Error("Product type must be specified for deletion")
+  deleteProduct(id: string, productType: string): Observable<void> {
+    console.log(`Deleting product: ${id}, type: ${productType}`);
+    
+    if (!this.ensureAuthenticated()) {
+      console.error('Authentication check failed in deleteProduct');
+      return throwError(() => new Error('Authentication required'));
+    }
+
+    const token = localStorage.getItem('token');
+    console.log('Token present for delete operation:', !!token); // Debug log
+
+    switch (productType) {
+      case "VINYL":
+        return this.deleteVinyl(id).pipe(
+          catchError((error) => {
+            console.error(`Error deleting ${productType}:`, error);
+            return throwError(() => error);
+          })
+        );
+      case "ANTIQUE":
+        return this.deleteAntique(id);
+      case "MUSIC_EQUIPMENT":
+        return this.deleteEquipment(id);
+      default:
+        console.error(`Invalid product type: ${productType}`);
+        return throwError(() => new Error(`Invalid product type: ${productType}`));
+    }
   }
 }
 

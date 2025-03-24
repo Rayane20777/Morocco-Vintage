@@ -1,16 +1,11 @@
-import { Component } from "@angular/core"
+import { Component, OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
-
-interface Customer {
-  id: number
-  name: string
-  email: string
-  orders: number
-  spent: string
-  lastOrder: string
-  status: string
-}
+import { Store } from "@ngrx/store"
+import { Observable } from "rxjs"
+import { UserActions } from "../../../store/users/user.actions"
+import { selectUsers, selectUserLoading, selectUserError } from "../../../store/users/user.selectors"
+import { User } from "../../../store/users/user.types"
 
 @Component({
   selector: "app-customers",
@@ -21,8 +16,8 @@ interface Customer {
       <!-- Header -->
       <div class="flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 class="text-2xl font-semibold">Customers</h1>
-          <p class="text-gray-500 mt-1">Manage your customer database</p>
+          <h1 class="text-2xl font-semibold">Users</h1>
+          <p class="text-gray-500 mt-1">Manage your user accounts</p>
         </div>
         <div class="mt-4 md:mt-0 flex gap-3">
           <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2">
@@ -35,7 +30,7 @@ interface Customer {
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            Add Customer
+            Add User
           </button>
         </div>
       </div>
@@ -49,9 +44,21 @@ interface Customer {
               type="text"
               id="search"
               [(ngModel)]="filters.search"
-              placeholder="Search customers..."
+              placeholder="Search users..."
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
             />
+          </div>
+          <div>
+            <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+            <select
+              id="role"
+              [(ngModel)]="filters.role"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+            >
+              <option value="">All Roles</option>
+              <option value="ADMIN">Admin</option>
+              <option value="USER">User</option>
+            </select>
           </div>
           <div>
             <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
@@ -61,21 +68,8 @@ interface Customer {
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
             >
               <option value="">All Statuses</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
-          <div>
-            <label for="sort" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
-            <select
-              id="sort"
-              [(ngModel)]="filters.sort"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
-            >
-              <option value="name">Name</option>
-              <option value="orders">Orders</option>
-              <option value="spent">Total Spent</option>
-              <option value="lastOrder">Last Order</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
             </select>
           </div>
         </div>
@@ -92,55 +86,83 @@ interface Customer {
         </div>
       </div>
 
-      <!-- Customers Table -->
-      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <!-- Loading State -->
+      <div *ngIf="loading$ | async" class="flex justify-center py-8">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal"></div>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error$ | async as error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+        <strong class="font-bold">Error!</strong>
+        <span class="block sm:inline"> {{ error }}</span>
+      </div>
+
+      <!-- Users Table -->
+      <div *ngIf="!(loading$ | async) && filteredUsers.length > 0" class="bg-white rounded-lg shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orders</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Spent</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Order</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              @for (customer of filteredCustomers; track customer.id) {
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div class="h-10 w-10 flex-shrink-0 rounded-full bg-gray-200 flex items-center justify-center">
-                        <span class="text-gray-500 font-medium">{{ customer.name.charAt(0) }}</span>
-                      </div>
-                      <div class="ml-4">
-                        <div class="text-sm font-medium text-gray-900">{{ customer.name }}</div>
-                      </div>
+              <tr *ngFor="let user of filteredUsers">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="h-10 w-10 flex-shrink-0 rounded-full bg-gray-200 flex items-center justify-center">
+                      <span class="text-gray-500 font-medium">{{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}</span>
                     </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ customer.email }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ customer.orders }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ customer.spent }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ customer.lastOrder }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">{{ user.firstName }} {{ user.lastName }}</div>
+                      <div class="text-sm text-gray-500">{{ user.username }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.email }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.phoneNumber }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex flex-wrap gap-1">
+                    <span *ngFor="let role of user.roles"
                       class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                       [ngClass]="{
-                        'bg-green-100 text-green-800': customer.status === 'Active',
-                        'bg-gray-100 text-gray-800': customer.status === 'Inactive'
+                        'bg-purple-100 text-purple-800': role === 'ADMIN',
+                        'bg-blue-100 text-blue-800': role === 'USER'
                       }"
                     >
-                      {{ customer.status }}
+                      {{ role }}
                     </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button class="text-teal hover:text-teal/80 mr-3">View</button>
-                    <button class="text-gray-600 hover:text-gray-800">Edit</button>
-                  </td>
-                </tr>
-              }
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span
+                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                    [ngClass]="{
+                      'bg-green-100 text-green-800': user.active,
+                      'bg-gray-100 text-gray-800': !user.active
+                    }"
+                  >
+                    {{ user.active ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <button class="text-teal hover:text-teal/80 mr-3">View</button>
+                  <button class="text-gray-600 hover:text-gray-800 mr-3">Edit</button>
+                  <button 
+                    (click)="toggleUserStatus(user)" 
+                    [class.text-red-600]="user.active"
+                    [class.text-green-600]="!user.active"
+                    class="hover:text-opacity-80"
+                  >
+                    {{ user.active ? 'Deactivate' : 'Activate' }}
+                  </button>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -156,170 +178,83 @@ interface Customer {
           <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
               <p class="text-sm text-gray-700">
-                Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">{{ customers.length }}</span> results
+                Showing <span class="font-medium">1</span> to <span class="font-medium">{{ filteredUsers.length }}</span> of <span class="font-medium">{{ filteredUsers.length }}</span> results
               </p>
-            </div>
-            <div>
-              <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  <span class="sr-only">Previous</span>
-                  <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                </button>
-                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                  1
-                </button>
-                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-teal text-sm font-medium text-white">
-                  2
-                </button>
-                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                  3
-                </button>
-                <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  <span class="sr-only">Next</span>
-                  <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                  </svg>
-                </button>
-              </nav>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!(loading$ | async) && filteredUsers.length === 0" class="bg-white rounded-lg shadow-sm p-8 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <h3 class="mt-4 text-lg font-medium text-gray-900">No users found</h3>
+        <p class="mt-2 text-gray-500">Try adjusting your search or filter criteria</p>
+      </div>
     </div>
   `,
 })
-export class CustomersComponent {
+export class CustomersComponent implements OnInit {
+  users$: Observable<User[]>
+  loading$: Observable<boolean>
+  error$: Observable<string | null>
+
+  users: User[] = []
+  filteredUsers: User[] = []
+
   filters = {
     search: "",
+    role: "",
     status: "",
-    sort: "name",
   }
 
-  customers: Customer[] = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john.doe@example.com",
-      orders: 5,
-      spent: "£349.95",
-      lastOrder: "Mar 15, 2023",
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      orders: 3,
-      spent: "£189.97",
-      lastOrder: "Mar 16, 2023",
-      status: "Active",
-    },
-    {
-      id: 3,
-      name: "Robert Johnson",
-      email: "robert.johnson@example.com",
-      orders: 7,
-      spent: "£599.93",
-      lastOrder: "Mar 16, 2023",
-      status: "Active",
-    },
-    {
-      id: 4,
-      name: "Emily Davis",
-      email: "emily.davis@example.com",
-      orders: 2,
-      spent: "£129.98",
-      lastOrder: "Mar 17, 2023",
-      status: "Active",
-    },
-    {
-      id: 5,
-      name: "Michael Wilson",
-      email: "michael.wilson@example.com",
-      orders: 1,
-      spent: "£79.99",
-      lastOrder: "Mar 17, 2023",
-      status: "Inactive",
-    },
-    {
-      id: 6,
-      name: "Sarah Brown",
-      email: "sarah.brown@example.com",
-      orders: 4,
-      spent: "£249.96",
-      lastOrder: "Mar 18, 2023",
-      status: "Active",
-    },
-    {
-      id: 7,
-      name: "David Miller",
-      email: "david.miller@example.com",
-      orders: 6,
-      spent: "£419.94",
-      lastOrder: "Mar 18, 2023",
-      status: "Active",
-    },
-    {
-      id: 8,
-      name: "Jennifer Taylor",
-      email: "jennifer.taylor@example.com",
-      orders: 1,
-      spent: "£59.99",
-      lastOrder: "Mar 19, 2023",
-      status: "Inactive",
-    },
-    {
-      id: 9,
-      name: "James Anderson",
-      email: "james.anderson@example.com",
-      orders: 8,
-      spent: "£689.92",
-      lastOrder: "Mar 19, 2023",
-      status: "Active",
-    },
-    {
-      id: 10,
-      name: "Lisa Thomas",
-      email: "lisa.thomas@example.com",
-      orders: 3,
-      spent: "£239.97",
-      lastOrder: "Mar 20, 2023",
-      status: "Active",
-    },
-  ]
+  constructor(private store: Store) {
+    this.users$ = this.store.select(selectUsers)
+    this.loading$ = this.store.select(selectUserLoading)
+    this.error$ = this.store.select(selectUserError)
+  }
 
-  filteredCustomers: Customer[] = [...this.customers]
+  ngOnInit(): void {
+    this.store.dispatch(UserActions.loadUsers())
 
-  applyFilters() {
-    this.filteredCustomers = this.customers.filter((customer) => {
+    this.users$.subscribe((users) => {
+      this.users = users
+      this.applyFilters()
+    })
+  }
+
+  applyFilters(): void {
+    this.filteredUsers = this.users.filter((user) => {
       // Search filter
       const searchMatch =
         this.filters.search === "" ||
-        customer.name.toLowerCase().includes(this.filters.search.toLowerCase()) ||
-        customer.email.toLowerCase().includes(this.filters.search.toLowerCase())
+        user.username.toLowerCase().includes(this.filters.search.toLowerCase()) ||
+        user.firstName.toLowerCase().includes(this.filters.search.toLowerCase()) ||
+        user.lastName.toLowerCase().includes(this.filters.search.toLowerCase()) ||
+        user.email.toLowerCase().includes(this.filters.search.toLowerCase())
+
+      // Role filter
+      const roleMatch = this.filters.role === "" || user.roles.includes(this.filters.role)
 
       // Status filter
-      const statusMatch = this.filters.status === "" || customer.status === this.filters.status
+      const statusMatch =
+        this.filters.status === "" ||
+        (this.filters.status === "active" && user.active) ||
+        (this.filters.status === "inactive" && !user.active)
 
-      return searchMatch && statusMatch
+      return searchMatch && roleMatch && statusMatch
     })
+  }
 
-    // Sort
-    if (this.filters.sort === "name") {
-      this.filteredCustomers.sort((a, b) => a.name.localeCompare(b.name))
-    } else if (this.filters.sort === "orders") {
-      this.filteredCustomers.sort((a, b) => b.orders - a.orders)
-    } else if (this.filters.sort === "spent") {
-      this.filteredCustomers.sort((a, b) => {
-        const aValue = Number.parseFloat(a.spent.replace("£", ""))
-        const bValue = Number.parseFloat(b.spent.replace("£", ""))
-        return bValue - aValue
-      })
-    } else if (this.filters.sort === "lastOrder") {
-      this.filteredCustomers.sort((a, b) => new Date(b.lastOrder).getTime() - new Date(a.lastOrder).getTime())
-    }
+  toggleUserStatus(user: User): void {
+    this.store.dispatch(
+      UserActions.updateUserStatus({
+        id: user.id,
+        active: !user.active,
+      }),
+    )
   }
 }
 
