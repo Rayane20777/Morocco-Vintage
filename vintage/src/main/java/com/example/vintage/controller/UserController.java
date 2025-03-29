@@ -1,9 +1,12 @@
 package com.example.vintage.controller;
 
 import com.example.vintage.dto.response.UserResponseDTO;
+import com.example.vintage.dto.update.UserUpdateDTO;
 import com.example.vintage.service.Interface.UserService;
 import com.example.vintage.service.GridFsService;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,7 @@ import java.util.List;
 @RequestMapping("/api/admin/users")
 @AllArgsConstructor
 public class UserController {
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     private final UserService userService;
     private final GridFsService gridFsService;
@@ -26,6 +30,18 @@ public class UserController {
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         List<UserResponseDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserResponseDTO> updateUser(
+            @PathVariable String id,
+            @ModelAttribute UserUpdateDTO userUpdateDTO) {
+        logger.info("Received update request for user with ID: {}", id);
+        logger.info("Update DTO: {}", userUpdateDTO);
+        UserResponseDTO updatedUser = userService.updateUser(id, userUpdateDTO);
+        logger.info("User updated successfully: {}", updatedUser);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @PutMapping("/{id}/roles")

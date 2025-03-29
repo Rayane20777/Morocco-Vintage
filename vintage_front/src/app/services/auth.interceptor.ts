@@ -17,17 +17,21 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
   console.log('AuthInterceptor - Request URL:', req.url);
   console.log('AuthInterceptor - Request Method:', req.method);
   console.log('AuthInterceptor - Token present:', !!token);
+  console.log('AuthInterceptor - Request body type:', req.body instanceof FormData ? 'FormData' : 'JSON');
   
   // Check if it's an admin endpoint
   const isAdminEndpoint = req.url.includes('/admin/');
   
   if (token) {
     // Clone the request and replace headers
-    req = req.clone({
-      headers: req.headers
-        .set('Authorization', `Bearer ${token}`)
-        .set('Content-Type', 'application/json')
-    });
+    const headers = req.headers.set('Authorization', `Bearer ${token}`);
+    
+    // Only set Content-Type if the body is not FormData
+    if (!(req.body instanceof FormData)) {
+      headers.set('Content-Type', 'application/json');
+    }
+    
+    req = req.clone({ headers });
     console.log('AuthInterceptor - Headers set:', req.headers.keys());
   } else if (isAdminEndpoint) {
     console.error('Attempting to access admin endpoint without token');

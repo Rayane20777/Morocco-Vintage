@@ -6,11 +6,12 @@ import { Observable } from "rxjs"
 import { UserActions } from "../../../store/users/user.actions"
 import { selectUsers, selectUserLoading, selectUserError } from "../../../store/users/user.selectors"
 import { User } from "../../../store/users/user.types"
+import { EditUserModalComponent } from "../../../components/edit-user-modal/edit-user-modal.component"
 
 @Component({
   selector: "app-customers",
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, EditUserModalComponent],
   template: `
     <div class="space-y-6">
       <!-- Header -->
@@ -19,70 +20,20 @@ import { User } from "../../../store/users/user.types"
           <h1 class="text-2xl font-semibold">Users</h1>
           <p class="text-gray-500 mt-1">Manage your user accounts</p>
         </div>
-        <div class="mt-4 md:mt-0 flex gap-3">
-          <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            Export
-          </button>
-          <button class="bg-teal hover:bg-teal/90 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Add User
-          </button>
-        </div>
       </div>
 
       <!-- Filters -->
       <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
-            <input
-              type="text"
-              id="search"
-              [(ngModel)]="filters.search"
-              placeholder="Search users..."
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-            <select
-              id="role"
-              [(ngModel)]="filters.role"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
-            >
-              <option value="">All Roles</option>
-              <option value="ADMIN">Admin</option>
-              <option value="USER">User</option>
-            </select>
-          </div>
-          <div>
-            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select
-              id="status"
-              [(ngModel)]="filters.status"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
-            >
-              <option value="">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-        </div>
-        <div class="mt-4 flex justify-end">
-          <button
-            (click)="applyFilters()"
-            class="bg-teal hover:bg-teal/90 text-white px-4 py-2 rounded-md flex items-center gap-2"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
-            Apply Filters
-          </button>
+        <div>
+          <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+          <input
+            type="text"
+            id="search"
+            [(ngModel)]="filters.search"
+            (ngModelChange)="applyFilters()"
+            placeholder="Search users..."
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+          />
         </div>
       </div>
 
@@ -115,8 +66,9 @@ import { User } from "../../../store/users/user.types"
               <tr *ngFor="let user of filteredUsers">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
-                    <div class="h-10 w-10 flex-shrink-0 rounded-full bg-gray-200 flex items-center justify-center">
-                      <span class="text-gray-500 font-medium">{{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}</span>
+                    <div class="h-10 w-10 flex-shrink-0 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                      <img *ngIf="user.imageUrl" [src]="user.imageUrl" [alt]="user.firstName" class="h-full w-full object-cover">
+                      <span *ngIf="!user.imageUrl" class="text-gray-500 font-medium">{{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}</span>
                     </div>
                     <div class="ml-4">
                       <div class="text-sm font-medium text-gray-900">{{ user.firstName }} {{ user.lastName }}</div>
@@ -151,16 +103,8 @@ import { User } from "../../../store/users/user.types"
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button class="text-teal hover:text-teal/80 mr-3">View</button>
-                  <button class="text-gray-600 hover:text-gray-800 mr-3">Edit</button>
-                  <button 
-                    (click)="toggleUserStatus(user)" 
-                    [class.text-red-600]="user.active"
-                    [class.text-green-600]="!user.active"
-                    class="hover:text-opacity-80"
-                  >
-                    {{ user.active ? 'Deactivate' : 'Activate' }}
-                  </button>
+                  <button (click)="editUser(user)" class="text-teal hover:text-teal/80 mr-3">Edit</button>
+                  <button (click)="deleteUser(user.id)" class="text-red-600 hover:text-red-800">Delete</button>
                 </td>
               </tr>
             </tbody>
@@ -194,6 +138,15 @@ import { User } from "../../../store/users/user.types"
         <p class="mt-2 text-gray-500">Try adjusting your search or filter criteria</p>
       </div>
     </div>
+
+    <!-- Edit User Modal -->
+    <app-edit-user-modal
+      [isOpen]="showEditModal"
+      [user]="selectedUser"
+      [loading]="(loading$ | async) || false"
+      (close)="closeEditModal()"
+      (save)="saveUser($event)"
+    ></app-edit-user-modal>
   `,
 })
 export class CustomersComponent implements OnInit {
@@ -203,11 +156,11 @@ export class CustomersComponent implements OnInit {
 
   users: User[] = []
   filteredUsers: User[] = []
+  selectedUser: User | null = null
+  showEditModal = false
 
   filters = {
     search: "",
-    role: "",
-    status: "",
   }
 
   constructor(private store: Store) {
@@ -235,16 +188,7 @@ export class CustomersComponent implements OnInit {
         user.lastName.toLowerCase().includes(this.filters.search.toLowerCase()) ||
         user.email.toLowerCase().includes(this.filters.search.toLowerCase())
 
-      // Role filter
-      const roleMatch = this.filters.role === "" || user.roles.includes(this.filters.role)
-
-      // Status filter
-      const statusMatch =
-        this.filters.status === "" ||
-        (this.filters.status === "active" && user.active) ||
-        (this.filters.status === "inactive" && !user.active)
-
-      return searchMatch && roleMatch && statusMatch
+      return searchMatch
     })
   }
 
@@ -255,6 +199,61 @@ export class CustomersComponent implements OnInit {
         active: !user.active,
       }),
     )
+  }
+
+  editUser(user: User): void {
+    this.selectedUser = { ...user }
+    this.showEditModal = true
+  }
+
+  closeEditModal(): void {
+    this.showEditModal = false
+    this.selectedUser = null
+  }
+
+  saveUser(data: { user: User; image?: File }): void {
+    console.log('Saving user data:', data);
+    
+    // First update user information if it has changed
+    const originalUser = this.users.find((u) => u.id === data.user.id)
+    if (originalUser) {
+      const hasChanges = 
+        originalUser.firstName !== data.user.firstName ||
+        originalUser.lastName !== data.user.lastName ||
+        originalUser.email !== data.user.email ||
+        originalUser.phoneNumber !== data.user.phoneNumber ||
+        originalUser.active !== data.user.active ||
+        JSON.stringify(originalUser.roles) !== JSON.stringify(data.user.roles) ||
+        !!data.image;
+
+      if (hasChanges) {
+        console.log('Changes detected, dispatching update action');
+        this.store.dispatch(
+          UserActions.updateUser({
+            id: data.user.id,
+            user: {
+              firstName: data.user.firstName,
+              lastName: data.user.lastName,
+              email: data.user.email,
+              phoneNumber: data.user.phoneNumber,
+              active: data.user.active,
+              roles: data.user.roles,
+              image: data.image
+            }
+          })
+        )
+      } else {
+        console.log('No changes detected, skipping update');
+      }
+    }
+
+    this.closeEditModal()
+  }
+
+  deleteUser(id: string): void {
+    if (confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+      this.store.dispatch(UserActions.deleteUser({ id }))
+    }
   }
 }
 

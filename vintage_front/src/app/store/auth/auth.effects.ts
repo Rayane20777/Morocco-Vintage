@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core"
-import { Actions, createEffect, ofType, OnInitEffects } from "@ngrx/effects"
+import { Actions, createEffect, ofType, type OnInitEffects } from "@ngrx/effects"
 import { of } from "rxjs"
 import { catchError, map, tap, mergeMap, switchMap } from "rxjs/operators"
 import { Router } from "@angular/router"
@@ -99,18 +99,54 @@ export class AuthEffects implements OnInitEffects {
   register$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.register),
-      mergeMap(({ email, password, username }) =>
-        this.authService.register(email, password, username).pipe(
-          map((response) =>
-            AuthActions.registerSuccess({
-              user: { id: "", email, username, role: "USER" },
-              token: response.token,
+      mergeMap((registerData) =>
+        this.authService
+          .register({
+            username: registerData.username,
+            password: registerData.password,
+            email: registerData.email,
+            firstName: registerData.firstName,
+            lastName: registerData.lastName,
+            phoneNumber: registerData.phoneNumber,
+            roles: registerData.roles,
+          })
+          .pipe(
+            map((response) =>
+              AuthActions.registerSuccess({
+                user: {
+                  id: "",
+                  email: registerData.email,
+                  username: registerData.username,
+                  role: "USER",
+                },
+                token: response.token,
+              }),
+            ),
+            catchError((error) => {
+              console.error("Registration error:", error)
+              return of(
+                AuthActions.registerFailure({
+                  error: error.message || error.error?.message || "Registration failed",
+                }),
+              )
             }),
           ),
-          catchError((error) => of(AuthActions.registerFailure({ error: error.message || "Registration failed" }))),
-        ),
       ),
     ),
+  )
+
+  registerSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.registerSuccess),
+        tap(({ user, token }) => {
+          console.log("Registration successful:", user)
+          // Optionally store token if auto-login is desired
+          // localStorage.setItem("token", token);
+          // this.router.navigate(["/browse"]);
+        }),
+      ),
+    { dispatch: false },
   )
 
   logout$ = createEffect(

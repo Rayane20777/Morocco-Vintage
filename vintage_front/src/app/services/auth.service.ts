@@ -9,6 +9,16 @@ interface AuthResponse {
   roles: { authority: string }[]
 }
 
+interface RegisterRequest {
+  username: string
+  password: string
+  email: string
+  firstName: string
+  lastName: string
+  phoneNumber: string
+  roles: string[]
+}
+
 @Injectable({
   providedIn: "root",
 })
@@ -22,12 +32,8 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { username, password })
   }
 
-  register(email: string, password: string, username: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, {
-      email,
-      password,
-      username,
-    })
+  register(registerData: RegisterRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, registerData)
   }
 
   getStoredToken(): string | null {

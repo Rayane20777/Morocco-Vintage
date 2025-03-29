@@ -2,6 +2,7 @@ package com.example.vintage.service.Interface;
 
 import com.example.vintage.dto.request.UserRequestDTO;
 import com.example.vintage.dto.response.UserResponseDTO;
+import com.example.vintage.dto.update.UserUpdateDTO;
 import com.example.vintage.model.User;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,4 +16,5 @@ public interface UserService {
     UserResponseDTO updateProfileImage(String userId, MultipartFile image);
     byte[] getProfileImage(String userId);
     String getProfileImageId(String id);
+    UserResponseDTO updateUser(String id, UserUpdateDTO userUpdateDTO);
 }
