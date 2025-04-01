@@ -10,6 +10,7 @@ export interface User {
   imageUrl?: string
   imageId?: string | null
   image?: File
+  dateAdded?: Date
 }
 
 export interface UserState {

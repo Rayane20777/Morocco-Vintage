@@ -52,20 +52,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody UserRequestDTO userDTO) {
+    public ResponseEntity<AuthResponse> register(@ModelAttribute UserRequestDTO userDTO) {
         UserResponseDTO registeredUser = userService.register(userDTO);
 
         List<String> roles = registeredUser.getRoles();
 
         String token = jwtTokenProvider.generateToken(registeredUser.getUsername(), roles);
-
-      /**  Date expirationDate = Jwts.parserBuilder()
-                .setSigningKey(jwtTokenProvider.getKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration();
-       **/
 
         List<SimpleGrantedAuthority> authorities = registeredUser.getRoles().stream()
                 .map(SimpleGrantedAuthority::new)

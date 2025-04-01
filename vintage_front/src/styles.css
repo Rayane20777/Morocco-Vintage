@@ -242,3 +242,10 @@ h6 {
   }
 }
 
+.toggle-checkbox {
+  transition: all 0.3s;
+}
+
+.toggle-label {
+  transition: all 0.3s ease-in-out;
+}

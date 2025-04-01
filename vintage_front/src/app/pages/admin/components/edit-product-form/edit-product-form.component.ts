@@ -1,14 +1,14 @@
 import { Component, Input, Output, EventEmitter, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
-import type { ProductType } from "../../../../store/products/product.types"
+import { ProductType } from "../../../../store/products/product.types"
 
 interface Product {
-  id: string // Changed from number to string
+  id: string
   name: string
   description: string
   price: number
-  boughtPrice: number // Changed from bought_price to boughtPrice
+  boughtPrice: number
   status: string
   type: string
   year: number
@@ -36,7 +36,7 @@ interface ProductFormData {
   name: string
   description: string
   price: number
-  boughtPrice: number // Changed from bought_price to boughtPrice
+  boughtPrice: number
   year: number
   status: string
   type: string
@@ -73,16 +73,42 @@ export class EditProductFormComponent implements OnInit {
 
     // Initialize array input fields if product is vinyl
     if (this.editedProduct.type === "VINYL") {
-      this.artistsInput = this.editedProduct.artists?.join(", ") || ""
-      this.genresInput = this.editedProduct.genres?.join(", ") || ""
-      this.stylesInput = this.editedProduct.styles?.join(", ") || ""
-      this.formatInput = this.editedProduct.format?.join(", ") || ""
+      // Fix: Clean up array data before displaying in form
+      this.artistsInput = this.formatArrayForDisplay(this.editedProduct.artists)
+      this.genresInput = this.formatArrayForDisplay(this.editedProduct.genres)
+      this.stylesInput = this.formatArrayForDisplay(this.editedProduct.styles)
+      this.formatInput = this.formatArrayForDisplay(this.editedProduct.format)
     }
 
     // Initialize image preview if product has an image
     if (this.editedProduct.imageUrl) {
       this.imagePreview = this.editedProduct.imageUrl
     }
+  }
+
+  // Helper method to clean up array data for display
+  private formatArrayForDisplay(arr?: string[]): string {
+    if (!arr || !Array.isArray(arr)) {
+      return ""
+    }
+
+    // Clean up each array item by removing extra quotes and escape characters
+    return arr
+      .map((item) => {
+        // If the item is a string that looks like a JSON string, try to parse it
+        if (typeof item === "string" && (item.startsWith('"') || item.startsWith("["))) {
+          try {
+            // Try to parse as JSON first
+            const parsed = JSON.parse(item)
+            return typeof parsed === "string" ? parsed : item
+          } catch (e) {
+            // If parsing fails, remove quotes manually
+            return item.replace(/^["'[\]\\]+|["'[\]\\]+$/g, "")
+          }
+        }
+        return item
+      })
+      .join(", ")
   }
 
   setProductType(type: string) {
@@ -169,22 +195,11 @@ export class EditProductFormComponent implements OnInit {
   onSubmit() {
     // Process array inputs before submitting
     if (this.editedProduct.type === "VINYL") {
-      this.editedProduct.artists = this.artistsInput
-        .split(",")
-        .map((item) => item.trim())
-        .filter((item) => item)
-      this.editedProduct.genres = this.genresInput
-        .split(",")
-        .map((item) => item.trim())
-        .filter((item) => item)
-      this.editedProduct.styles = this.stylesInput
-        .split(",")
-        .map((item) => item.trim())
-        .filter((item) => item)
-      this.editedProduct.format = this.formatInput
-        .split(",")
-        .map((item) => item.trim())
-        .filter((item) => item)
+      // Fix: Properly parse arrays without extra quotes
+      this.editedProduct.artists = this.parseArrayInput(this.artistsInput)
+      this.editedProduct.genres = this.parseArrayInput(this.genresInput)
+      this.editedProduct.styles = this.parseArrayInput(this.stylesInput)
+      this.editedProduct.format = this.parseArrayInput(this.formatInput)
     }
 
     // In a real application, you would upload the image to a server
@@ -202,6 +217,18 @@ export class EditProductFormComponent implements OnInit {
     }
 
     this.formSubmit.emit(formData)
+  }
+
+  // Helper method to properly parse comma-separated values into an array
+  private parseArrayInput(input: string): string[] {
+    if (!input || input.trim() === "") {
+      return []
+    }
+
+    return input
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item !== "")
   }
 
   cancel() {

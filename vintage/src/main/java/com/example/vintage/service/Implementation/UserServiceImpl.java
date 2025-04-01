@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,16 +49,31 @@ public class UserServiceImpl implements UserService {
             user.setImageId(imageId);
         }
 
-        List<Role> roles = userDTO.getRoles().stream()
-                .map(roleName -> roleRepository.findByName(roleName))
-                .collect(Collectors.toList());
+        // Handle roles
+        List<Role> roles = new ArrayList<>();
+        
+        // Always add USER role
+        Role userRole = roleRepository.findByName("USER");
+        if (userRole != null) {
+            roles.add(userRole);
+        } else {
+            // If USER role doesn't exist, create it
+            userRole = new Role();
+            userRole.setName("USER");
+            userRole = roleRepository.save(userRole);
+            roles.add(userRole);
+        }
 
-        if (roles.isEmpty()) {
-            roles.add(roleRepository.findByName("USER"));
+        // Add any additional roles if provided
+        if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
+            userDTO.getRoles().stream()
+                    .filter(roleName -> !roleName.equals("USER")) // Skip USER as it's already added
+                    .map(roleRepository::findByName)
+                    .filter(role -> role != null)
+                    .forEach(roles::add);
         }
 
         user.setRoles(roles);
-
         return userMapper.toDTO(userRepository.save(user));
     }
 

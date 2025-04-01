@@ -69,6 +69,7 @@ export class RegisterComponent {
         email: formData.email,
         phoneNumber: formData.phone || "",
         roles: ["USER"],
+        image: this.selectedImage || undefined
       }
 
       console.log("Registering user:", registrationData)
@@ -83,6 +84,7 @@ export class RegisterComponent {
           lastName: registrationData.lastName,
           phoneNumber: registrationData.phoneNumber,
           roles: registrationData.roles,
+          image: registrationData.image
         }),
       )
 

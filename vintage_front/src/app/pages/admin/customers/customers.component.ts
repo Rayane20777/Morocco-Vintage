@@ -59,6 +59,7 @@ import { EditUserModalComponent } from "../../../components/edit-user-modal/edit
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Added</th>
                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
@@ -102,6 +103,7 @@ import { EditUserModalComponent } from "../../../components/edit-user-modal/edit
                     {{ user.active ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.dateAdded | date:'medium' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button (click)="editUser(user)" class="text-teal hover:text-teal/80 mr-3">Edit</button>
                   <button (click)="deleteUser(user.id)" class="text-red-600 hover:text-red-800">Delete</button>

@@ -37,7 +37,7 @@ import { selectIsAuthenticated } from "./store/auth/auth.selectors"
   ],
 })
 export class AppComponent implements OnInit {
-  title = "Vinyl Vault"
+  title = "Vintage Maroc"
   isAdminRoute = false
   isAuthenticated$ = this.store
     .select(selectIsAuthenticated)

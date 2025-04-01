@@ -74,7 +74,7 @@ export class NewReleasesComponent {
       title: "Happier Than Ever",
       artist: "Billie Eilish",
       price: 32.99,
-      image: "/assets/placeholder.svg",
+      image: "https://media.pitchfork.com/photos/608839f84c67840074db8afb/1:1/w_3000,h_3000,c_limit/Billie-Eilish-Happier-Than-Ever.jpeg",
       isNewRelease: true,
     },
     {
@@ -82,7 +82,7 @@ export class NewReleasesComponent {
       title: "30",
       artist: "Adele",
       price: 29.99,
-      image: "/assets/placeholder.svg",
+      image: "https://cdn-images.dzcdn.net/images/cover/a87ee7c212c7b0f9ae687c378f260324/500x500-000000-80-0-0.jpg",
       isNewRelease: true,
     },
     {
@@ -90,7 +90,7 @@ export class NewReleasesComponent {
       title: "SOUR",
       artist: "Olivia Rodrigo",
       price: 27.99,
-      image: "/assets/placeholder.svg",
+      image: "https://cdn-images.dzcdn.net/images/cover/e68da86fd7976135c2d2d1715afaef7c/500x500-000000-80-0-0.jpg",
       isNewRelease: true,
     },
     {
@@ -98,7 +98,7 @@ export class NewReleasesComponent {
       title: "Planet Her",
       artist: "Doja Cat",
       price: 28.99,
-      image: "/assets/placeholder.svg",
+      image: "https://cdn-images.dzcdn.net/images/cover/1e012b5bba83edac911b09ca1ab29e1e/500x500-000000-80-0-0.jpg",
       isNewRelease: true,
     },
   ]

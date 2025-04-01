@@ -1,4 +1,4 @@
-export type ProductType = 'VINYL' | 'ANTIQUE' | 'MUSIC_EQUIPMENT';
+export type ProductType = "VINYL" | "ANTIQUE" | "MUSIC_EQUIPMENT"
 
 export interface Product {
   id: string
@@ -11,6 +11,7 @@ export interface Product {
   year: number
   imageUrl?: string
   image?: string
+  imageId?: string
 
   // Vinyl specific fields
   artists?: string[]
@@ -18,6 +19,21 @@ export interface Product {
   styles?: string[]
   format?: string[]
   discogsId?: number
+  instanceId?: number
+  dateAdded?: Date
+  thumbImageUrl?: string
+  coverImageUrl?: string
+  active?: boolean
+
+  // Additional vinyl fields
+  label?: string
+  catalogNumber?: string
+  country?: string
+  mediaCondition?: string
+  sleeveCondition?: string
+  trackList?: string[]
+  condition?: string
+  rating?: number
 
   // Equipment specific fields
   model?: string
@@ -27,7 +43,6 @@ export interface Product {
 
   // Antique specific fields
   typeId?: string
-  condition?: string
 }
 
 export interface ProductState {
@@ -36,6 +51,17 @@ export interface ProductState {
   loading: boolean
   error: string | null
   selectedProductType: ProductType
+  filteredProducts: Product[]
+  filters: ProductFilters
+}
+
+export interface ProductFilters {
+  category: string[]
+  price: { min: number; max: number }
+  condition: string[]
+  genre?: string[]
+  style?: string[]
+  searchTerm?: string
 }
 
 // Fix the ProductFormData interface to include boughtPrice and add index signature

@@ -1,5 +1,6 @@
 import { createAction, props } from "@ngrx/store"
 import { User } from "./auth.state"
+import { UserProfile } from "../../services/user.service"
 
 export const login = createAction("[Auth] Login", props<{ username: string; password: string }>())
 
@@ -25,6 +26,7 @@ export const register = createAction(
     lastName: string
     phoneNumber: string
     roles: string[]
+    image?: File
   }>(),
 )
 
@@ -34,4 +36,6 @@ export const registerFailure = createAction("[Auth] Register Failure", props<{ e
 
 export const initAuth = createAction("[Auth] Initialize Auth")
 export const authInitialized = createAction("[Auth] Auth Initialized")
+
+export const updateUserProfile = createAction("[Auth] Update User Profile", props<{ profile: UserProfile }>())
 

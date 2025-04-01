@@ -11,6 +11,7 @@ import { ProductActions } from "../../../store/products/product.actions"
 import type { Product, ProductState } from "../../../store/products/product.types"
 import { ProductType } from "../../../store/products/product.types"
 import { selectSelectedProductType } from "../../../store/products/product.selectors"
+import { ApiService } from "../../../services/api.service"
 
 // Define ProductType type
 
@@ -188,7 +189,7 @@ interface ProductFormData {
                     <div class="flex items-center">
                       <div class="h-10 w-10 flex-shrink-0 bg-gray-100 rounded-md flex items-center justify-center">
                         @if (product.imageUrl) {
-                          <img [src]="product.imageUrl" [alt]="product.name" class="h-10 w-10 object-cover rounded-md">
+                          <img [src]="getProductImageUrl(product.imageUrl)" [alt]="product.name" class="h-10 w-10 object-cover rounded-md">
                         } @else {
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
@@ -202,8 +203,8 @@ interface ProductFormData {
                     </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ product.type || 'Unknown Type' }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">£{{ product.boughtPrice?.toFixed(2) || '0.00' }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">£{{ product.price?.toFixed(2) || '0.00' }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">£{{ product.boughtPrice.toFixed(2) || '0.00' }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">£{{ product.price.toFixed(2) || '0.00' }}</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm" [ngClass]="{'text-green-600': (product.price - product.boughtPrice) > 0, 'text-red-600': (product.price - product.boughtPrice) < 0}">
                     £{{ ((product.price || 0) - (product.boughtPrice || 0)).toFixed(2) }}
                   </td>
@@ -212,11 +213,11 @@ interface ProductFormData {
                       class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                       [ngClass]="{
                         'bg-green-100 text-green-800': product.status === 'AVAILABLE',
-                        'bg-red-100 text-red-800': product.status === 'SOLD OUT',
-                        'bg-yellow-100 text-yellow-800': product.status !== 'AVAILABLE' && product.status !== 'SOLD OUT'
+                        'bg-red-100 text-red-800': product.status === 'SOLD',
+                        'bg-yellow-100 text-yellow-800': product.status !== 'AVAILABLE' && product.status !== 'SOLD'
                       }"
                     >
-                      {{ product.status || 'Unknown' }}
+                      {{ product.status === 'SOLD' ? 'Sold Out' : product.status || 'Unknown' }}
                     </span>
                   </td>
 
@@ -318,7 +319,10 @@ export class ProductsComponent implements OnInit {
   products: Product[] = []
   filteredProducts: Product[] = []
 
-  constructor(private store: Store<{ products: ProductState }>) {
+  constructor(
+    private store: Store<{ products: ProductState }>,
+    private apiService: ApiService
+  ) {
     this.products$ = this.store.select((state) => state.products.products)
     this.loading$ = this.store.select((state) => state.products.loading)
     this.error$ = this.store.select((state) => state.products.error)
@@ -375,28 +379,19 @@ export class ProductsComponent implements OnInit {
     this.currentProduct = null
   }
 
-  onAddProduct(formData: any) {
-    // Cast the form data to ensure type compatibility
-    const typedFormData: ProductFormData = {
-      ...formData,
-      type: formData.type as ProductType,
-    }
-
-    // Convert form data to FormData
-    const data = this.prepareFormData(typedFormData)
-
+  onAddProduct(formData: FormData) {
     // Get the token for authentication
     const token = localStorage.getItem("token") || ""
 
     switch (this.selectedProductType) {
       case "VINYL":
-        this.store.dispatch(ProductActions.createProduct({ product: data }))
+        this.store.dispatch(ProductActions.createProduct({ product: formData }))
         break
       case "ANTIQUE":
-        this.store.dispatch(ProductActions.createProduct({ product: data }))
+        this.store.dispatch(ProductActions.createProduct({ product: formData }))
         break
       case "MUSIC_EQUIPMENT":
-        this.store.dispatch(ProductActions.createProduct({ product: data }))
+        this.store.dispatch(ProductActions.createProduct({ product: formData }))
         break
       default:
         console.error("Invalid product type:", this.selectedProductType)
@@ -539,6 +534,10 @@ export class ProductsComponent implements OnInit {
     }
 
     return data
+  }
+
+  getProductImageUrl(imageId: string): string {
+    return this.apiService.getProductImageUrl(imageId);
   }
 }
 

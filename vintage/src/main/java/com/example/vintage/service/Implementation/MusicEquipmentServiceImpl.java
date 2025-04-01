@@ -29,7 +29,14 @@ public class MusicEquipmentServiceImpl implements MusicEquipmentService {
     @Override
     @Transactional
     public MusicEquipmentResponseDTO createMusicEquipment(MusicEquipmentRequestDTO dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("MusicEquipmentRequestDTO cannot be null");
+        }
+        
         MusicEquipment musicEquipment = musicEquipmentMapper.toEntity(dto);
+        if (musicEquipment == null) {
+            throw new NullPointerException("Failed to map MusicEquipmentRequestDTO to entity");
+        }
         
         // Handle image upload using GridFS
         if (dto.getImage() != null && !dto.getImage().isEmpty()) {

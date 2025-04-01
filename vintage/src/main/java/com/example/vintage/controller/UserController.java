@@ -2,15 +2,19 @@ package com.example.vintage.controller;
 
 import com.example.vintage.dto.response.UserResponseDTO;
 import com.example.vintage.dto.update.UserUpdateDTO;
+import com.example.vintage.model.User;
 import com.example.vintage.service.Interface.UserService;
 import com.example.vintage.service.GridFsService;
-import lombok.AllArgsConstructor;
+import com.example.vintage.mapper.UserMapper;
+import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +28,7 @@ public class UserController {
 
     private final UserService userService;
     private final GridFsService gridFsService;
+    private final UserMapper userMapper;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -69,5 +74,30 @@ public class UserController {
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(imageBytes);
+    }
+
+    // New endpoint for users to update their own profile
+    @PutMapping("/profile")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<UserResponseDTO> updateOwnProfile(@ModelAttribute UserUpdateDTO userUpdateDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userService.loadUserByUsername(username);
+        
+        logger.info("User {} updating their own profile", username);
+        UserResponseDTO updatedUser = userService.updateUser(user.getId(), userUpdateDTO);
+        logger.info("Profile updated successfully: {}", updatedUser);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    // New endpoint for users to get their own profile
+    @GetMapping("/profile")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<UserResponseDTO> getOwnProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userService.loadUserByUsername(username);
+        
+        return ResponseEntity.ok(userMapper.toDTO(user));
     }
 }

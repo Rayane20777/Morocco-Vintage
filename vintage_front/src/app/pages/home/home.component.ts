@@ -52,12 +52,12 @@ import { NewsletterComponent } from "../../components/newsletter/newsletter.comp
               <div class="group relative h-40 md:h-64 overflow-hidden rounded-lg shadow-md transform transition-transform hover:scale-105 hover:-rotate-1">
                 <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors z-10"></div>
                 <img
-                  src="/assets/placeholder.svg"
-                  [alt]="genre"
+                  [src]="genre.image"
+                  [alt]="genre.name"
                   class="object-cover w-full h-full transition-transform group-hover:scale-110 duration-700"
                 />
                 <div class="absolute inset-0 z-20 flex items-center justify-center">
-                  <span class="text-lg md:text-xl font-medium text-white group-hover:text-teal transition-colors">{{ genre }}</span>
+                  <span class="text-lg md:text-xl font-medium text-white group-hover:text-teal transition-colors">{{ genre.name }}</span>
                 </div>
               </div>
             }
@@ -96,7 +96,7 @@ import { NewsletterComponent } from "../../components/newsletter/newsletter.comp
         <div class="container mx-auto px-4">
           <div class="flex flex-col md:flex-row items-center gap-8">
             <div class="w-full md:w-1/2 relative h-80 md:h-[500px] rounded-lg overflow-hidden shadow-lg transform transition-transform hover:scale-105 duration-500">
-              <img src="/assets/placeholder.svg" alt="Turntable" class="object-cover w-full h-full transition-transform hover:scale-110 duration-700" />
+              <img src="https://highfidelity.pl/foto_testy/1810/techdas/04.jpg" alt="Turntable" class="object-cover w-full h-full transition-transform hover:scale-110 duration-700" />
               <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
                 <div class="p-6">
                   <h3 class="text-xl font-bold text-white">Premium Equipment</h3>
@@ -176,7 +176,24 @@ import { NewsletterComponent } from "../../components/newsletter/newsletter.comp
   ],
 })
 export class HomeComponent {
-  genres = ["Rock & Alternative", "Jazz & Blues", "Hip Hop & R&B", "Electronic"]
+  genres = [
+    {
+      name: "Rock & Alternative",
+      image: "https://www.howardbasshead.com/wp-content/uploads/2023/08/what-is-rock-and-roll-1024x576.png"
+    },
+    {
+      name: "Jazz & Blues",
+      image: "https://www.lansingstatejournal.com/gcdn/-mm-/fe540925f187d73c8a91c93ece4e29936ea358fc/c=0-885-3804-3034/local/-/media/2015/07/16/MIGroup/Lansing/635726564289570272-ThinkstockPhotos-486813379-1-.jpg?width=660&height=373&fit=crop&format=pjpg&auto=webp"
+    },
+    {
+      name: "Hip Hop & R&B",
+      image: "https://media.istockphoto.com/id/92026251/photo/hip-hop-musician.jpg?s=612x612&w=0&k=20&c=ZTrTLbbgglN_HWDhy1f_NMr0sJZYunWIEayj_qlBD9A="
+    },
+    {
+      name: "Electronic",
+      image: "https://cdn.dorik.com/61b26b2a675711001197dfb6/630c7f8f284fd80011923a90/images/Capture-d'ecran-2022-12-01-a-18.12.20_q5hp4ju7.png"
+    }
+  ];
   equipmentItems = ["Turntables", "Speakers", "Amplifiers", "Accessories"]
 }
 

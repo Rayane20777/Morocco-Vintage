@@ -66,5 +66,12 @@ export const authReducer = createReducer(
     loading: false,
     error,
   })),
+  on(AuthActions.updateUserProfile, (state, { profile }) => ({
+    ...state,
+    user: profile,
+    username: profile.username,
+    roles: profile.roles.map(role => ({ authority: role })),
+    isAdmin: profile.roles.includes('ADMIN') || profile.roles.includes('ROLE_ADMIN'),
+  })),
 )
 

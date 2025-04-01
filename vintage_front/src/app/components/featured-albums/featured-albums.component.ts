@@ -71,28 +71,28 @@ export class FeaturedAlbumsComponent {
       title: "Future Nostalgia",
       artist: "Dua Lipa",
       price: 29.99,
-      image: "/assets/placeholder.svg",
+      image: "https://i.discogs.com/6h8WBjbYGlpiMeFdcpdvVuT7bLP3kw8Gd_F4L6ULqSE/rs:fit/g:sm/q:90/h:532/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2MDc2/NTEwLTE3MTYzNDg0/NTItOTU1Ni5qcGVn.jpeg",
     },
     {
       id: 2,
       title: "Random Access Memories",
       artist: "Daft Punk",
       price: 34.99,
-      image: "/assets/placeholder.svg",
+      image: "https://media.pitchfork.com/photos/63f641d801dbe796fab80055/3:2/w_1500,h_1000,c_limit/Daft-Punk-Random-Access-Memories.jpg",
     },
     {
       id: 3,
       title: "When We All Fall Asleep, Where Do We Go?",
       artist: "Billie Eilish",
       price: 27.99,
-      image: "/assets/placeholder.svg",
+      image: "https://i.scdn.co/image/ab67616d0000b27350a3147b4edd7701a876c6ce",
     },
     {
       id: 4,
       title: "Fine Line",
       artist: "Harry Styles",
       price: 32.99,
-      image: "/assets/placeholder.svg",
+      image: "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/6c/11/d6/6c11d681-aa3a-d59e-4c2e-f77e181026ab/190295092665.jpg/1200x1200bb.jpg",
     },
   ]
 }

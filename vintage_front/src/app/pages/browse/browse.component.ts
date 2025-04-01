@@ -1,13 +1,22 @@
-import { Component } from "@angular/core"
+import { Component, type OnInit, type OnDestroy } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { RouterLink } from "@angular/router"
 import { FormsModule } from "@angular/forms"
-
-interface Filter {
-  category: string[]
-  price: { min: number; max: number }
-  condition: string[]
-}
+import { Store } from "@ngrx/store"
+import { ProductActions } from "../../store/products/product.actions"
+import {
+  selectFilteredVinyls,
+  selectProductLoading,
+  selectProductError,
+  selectGenres,
+  selectStyles,
+} from "../../store/products/product.selectors"
+import { Subject } from "rxjs"
+import { takeUntil, debounceTime, distinctUntilChanged } from "rxjs/operators"
+import { Product, ProductFilters } from "../../store/products/product.types"
+import { DomSanitizer } from "@angular/platform-browser"
+import { environment } from "../../../environments/environment"
+import { UserService } from "../../services/user.service"
 
 @Component({
   selector: "app-browse",
@@ -27,11 +36,19 @@ interface Filter {
         </div>
       </div>
 
+      <div *ngIf="loading" class="flex justify-center my-8">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal"></div>
+      </div>
+
+      <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <p>{{ error }}</p>
+      </div>
+
       <div class="relative mb-6">
         <input
           type="text"
           [(ngModel)]="searchTerm"
-          (ngModelChange)="filterRecords()"
+          (ngModelChange)="onSearchChange($event)"
           placeholder="Search for artists, albums, or genres..."
           class="w-full pl-10 pr-4 py-2 border rounded-md"
         >
@@ -51,7 +68,7 @@ interface Filter {
                   <input
                     type="number"
                     [(ngModel)]="filters.price.min"
-                    (ngModelChange)="filterRecords()"
+                    (ngModelChange)="applyFilters()"
                     placeholder="Min"
                     class="w-20 px-2 py-1 border rounded"
                   >
@@ -59,26 +76,49 @@ interface Filter {
                   <input
                     type="number"
                     [(ngModel)]="filters.price.max"
-                    (ngModelChange)="filterRecords()"
+                    (ngModelChange)="applyFilters()"
                     placeholder="Max"
                     class="w-20 px-2 py-1 border rounded"
                   >
                 </div>
               </div>
               <div>
-                <h3 class="font-medium mb-2">Condition</h3>
-                @for (condition of conditions; track condition) {
-                  <label class="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      [value]="condition"
-                      (change)="updateFilter('condition', condition, $event)"
-                      [checked]="filters.condition.includes(condition)"
-                    >
-                    <span>{{ condition }}</span>
-                  </label>
-                }
+                <h3 class="font-medium mb-2">Genres</h3>
+                <div class="max-h-40 overflow-y-auto">
+                  @for (genre of availableGenres; track genre) {
+                    <label class="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        [value]="genre"
+                        (change)="updateGenreFilter(genre, $event)"
+                        [checked]="isGenreSelected(genre)"
+                      >
+                      <span>{{ genre }}</span>
+                    </label>
+                  }
+                </div>
               </div>
+              <div>
+                <h3 class="font-medium mb-2">Styles</h3>
+                <div class="max-h-40 overflow-y-auto">
+                  @for (style of availableStyles; track style) {
+                    <label class="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        [value]="style"
+                        (change)="updateStyleFilter(style, $event)"
+                        [checked]="isStyleSelected(style)"
+                      >
+                      <span>{{ style }}</span>
+                    </label>
+                  }
+                </div>
+              </div>
+              <button 
+                (click)="resetFilters()" 
+                class="w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md">
+                Reset Filters
+              </button>
             </div>
           </div>
         </div>
@@ -89,27 +129,26 @@ interface Filter {
               <span class="text-sm text-gray-500">Sort by:</span>
               <div class="flex gap-4">
                 @for (option of sortOptions; track option) {
-                  <a href="#" class="text-sm text-teal hover:underline">{{ option }}</a>
+                  <a href="#" (click)="sortRecords(option, $event)" class="text-sm" [class.text-teal]="currentSort === option" [class.font-medium]="currentSort === option" [class.hover:underline]="true">{{ option }}</a>
                 }
               </div>
             </div>
-            <span class="text-sm font-medium">Price</span>
+            <span class="text-sm font-medium">{{ filteredVinyls.length }} Records</span>
+          </div>
+
+          <div *ngIf="filteredVinyls.length === 0 && !loading" class="bg-white rounded-lg shadow-sm p-8 text-center">
+            <p class="text-gray-500">No records found matching your criteria.</p>
           </div>
 
           <div class="space-y-4">
-            @for (record of filteredRecords; track record.id) {
+            @for (record of filteredVinyls; track record.id) {
               <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div class="flex flex-col md:flex-row">
                   <div class="p-4 md:w-[180px] flex-shrink-0">
                     <div class="relative aspect-square md:h-[150px] md:w-[150px] mx-auto">
-                      <img [src]="record.imageUrl" [alt]="record.artist + ' - ' + record.title" class="object-cover w-full h-full">
-                    </div>
-                    <div class="mt-2 text-xs text-gray-500 flex justify-between">
-                      <div>
-                        <span class="text-teal font-medium">{{ record.have }}</span> have
-                      </div>
-                      <div>
-                        <span class="text-teal font-medium">{{ record.want }}</span> want
+                      <img [src]="getSafeImageUrl(record)" alt="https://static.fnac-static.com/multimedia/Images/FD/Comete/119799/CCP_IMG_1200x800/1557956.jpg" class="object-cover w-full h-full">
+                      <div *ngIf="record.price" class="absolute top-0 right-0 bg-teal text-white px-2 py-1 text-sm font-bold rounded-bl">
+                        £{{ record.price.toFixed(2) }}
                       </div>
                     </div>
                   </div>
@@ -117,23 +156,23 @@ interface Filter {
                   <div class="p-4 flex-1 border-t md:border-t-0 md:border-l border-gray-100">
                     <div class="mb-3">
                       <a [routerLink]="['/release', record.id]" class="text-lg font-medium text-teal hover:underline">
-                        {{ record.artist }} - {{ record.title }}
+                        {{ getArtistTitle(record) }}
                       </a>
                     </div>
 
                     <div class="grid grid-cols-2 gap-x-4 gap-y-1 mb-4 text-sm">
-                      <div>
-                        <span class="text-gray-500">Label:</span>
-                        <a href="#" class="text-teal hover:underline">{{ record.label }}</a>
+                      <div *ngIf="record.year">
+                        <span class="text-gray-500">Year:</span> <span>{{ record.year }}</span>
                       </div>
-                      <div>
-                        <span class="text-gray-500">Cat#:</span> <span>{{ record.catalogNumber }}</span>
+                      <div *ngIf="record.genres && record.genres.length">
+                        <span class="text-gray-500">Genres:</span>
+                        <span>{{ record.genres.join(', ') }}</span>
                       </div>
-                      <div>
-                        <span class="text-gray-500">Media:</span> <span>{{ record.mediaCondition }}</span>
+                      <div *ngIf="record.format && record.format.length">
+                        <span class="text-gray-500">Format:</span> <span>{{ record.format.join(', ') }}</span>
                       </div>
-                      <div>
-                        <span class="text-gray-500">Sleeve:</span> <span>{{ record.sleeveCondition }}</span>
+                      <div *ngIf="record.condition">
+                        <span class="text-gray-500">Condition:</span> <span>{{ record.condition }}</span>
                       </div>
                     </div>
 
@@ -146,12 +185,13 @@ interface Filter {
 
                   <div class="p-4 md:w-[220px] flex-shrink-0 border-t md:border-t-0 md:border-l border-gray-100 flex flex-col">
                     <div class="mb-3 text-center">
-                      <div class="text-xl font-bold">£{{ record.price.toFixed(2) }}</div>
+                      <div class="text-xl font-bold">
+                        {{ record.price ? ('£' + record.price.toFixed(2)) : 'Price unavailable' }}
+                      </div>
                     </div>
 
                     <div class="mt-auto space-y-2">
-                      <button class="w-full bg-teal hover:bg-teal/90 text-white px-4 py-2 rounded-md">Add to Cart</button>
-                      <a [routerLink]="['/release', record.id]" class="block w-full text-center border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded-md">View Details</a>
+                      <a [routerLink]="['/release', record.id]" class="block w-full text-center bg-teal hover:bg-teal/90 text-white px-4 py-2 rounded-md">View Details</a>
                     </div>
                   </div>
                 </div>
@@ -164,142 +204,221 @@ interface Filter {
   `,
   styles: [],
 })
-export class BrowseComponent {
+export class BrowseComponent implements OnInit, OnDestroy {
   sortOptions = ["Relevance", "Price: Low to High", "Price: High to Low", "Newest"]
-  categories = ["Rock", "Jazz", "Hip Hop", "Electronic", "Classical"]
-  conditions = ["Mint", "Near Mint", "Very Good", "Good", "Fair"]
+  currentSort = "Relevance"
 
   showFilters = false
   searchTerm = ""
-  filters: Filter = {
+
+  filters: ProductFilters = {
     category: [],
     price: { min: 0, max: 1000 },
     condition: [],
+    genre: [],
+    style: [],
+    searchTerm: "",
   }
 
-  vinylRecords = [
-    {
-      id: 1,
-      artist: "Pink Floyd",
-      title: "Dark Side of the Moon",
-      imageUrl:
-        "https://images.theconversation.com/files/512871/original/file-20230301-26-ryosag.jpg?ixlib=rb-4.1.0&rect=97%2C79%2C5799%2C5817&q=45&auto=format&w=926&fit=clip",
-      label: "Harvest",
-      catalogNumber: "SHVL 804",
-      mediaCondition: "Near Mint (NM or M-)",
-      sleeveCondition: "Very Good Plus (VG+)",
-      description:
-        "Original UK pressing from 1973. The vinyl is in excellent condition with minimal surface noise. The sleeve shows some light wear on the edges but overall in great condition.",
-      have: 12453,
-      want: 8765,
-      rating: 4.8,
-      ratingPercent: 96,
-      ratings: 245,
-      price: 149.99,
-      category: "Rock",
-      shipsFrom: "United Kingdom",
-      shipping: 4.99,
-      totalEuros: 154.98,
-    },
-    {
-      id: 2,
-      artist: "Miles Davis",
-      title: "Kind of Blue",
-      imageUrl:
-        "https://cdn-p.smehost.net/sites/c5d2b1a28fd246bfafed3b8dbafc1352/wp-content/uploads/2021/05/cover-45.jpg",
-      label: "Columbia",
-      catalogNumber: "CS 8163",
-      mediaCondition: "Mint (M)",
-      sleeveCondition: "Mint (M)",
-      description:
-        "Original 1959 pressing in pristine condition. One of the most influential jazz albums ever recorded, featuring the legendary sextet with John Coltrane and Bill Evans.",
-      have: 8562,
-      want: 6543,
-      rating: 4.9,
-      ratingPercent: 98,
-      ratings: 189,
-      price: 199.99,
-      category: "Jazz",
-      shipsFrom: "United States",
-      shipping: 5.99,
-      totalEuros: 205.98,
-    },
-    {
-      id: 3,
-      artist: "The Beatles",
-      title: "Abbey Road",
-      imageUrl: "https://i.ebayimg.com/images/g/zZMAAOSw-2thXkWX/s-l1600.webp",
-      label: "Apple",
-      catalogNumber: "PCS 7088",
-      mediaCondition: "Very Good Plus (VG+)",
-      sleeveCondition: "Very Good (VG)",
-      description:
-        "Original UK pressing from 1969. The vinyl has some light surface marks but plays well. The sleeve has some ring wear and edge wear but is still presentable.",
-      have: 15678,
-      want: 9876,
-      rating: 4.7,
-      ratingPercent: 94,
-      ratings: 312,
-      price: 89.99,
-      category: "Rock",
-      shipsFrom: "United Kingdom",
-      shipping: 4.99,
-      totalEuros: 94.98,
-    },
-    {
-      id: 4,
-      artist: "Daft Punk",
-      title: "Random Access Memories",
-      imageUrl: "https://www.adamkois.com/wp-content/uploads/2014/01/tumblr_mn9t4yJJaw1qa1rvco1_1280.jpg",
-      label: "Columbia",
-      catalogNumber: "88883716861",
-      mediaCondition: "Near Mint (NM or M-)",
-      sleeveCondition: "Near Mint (NM or M-)",
-      description:
-        "Limited edition 180g pressing from 2013. The vinyl is in excellent condition with no surface noise. The sleeve is pristine with no wear.",
-      have: 5432,
-      want: 4321,
-      rating: 4.6,
-      ratingPercent: 92,
-      ratings: 167,
-      price: 79.99,
-      category: "Electronic",
-      shipsFrom: "France",
-      shipping: 6.99,
-      totalEuros: 86.98,
-    },
-  ]
+  filteredVinyls: Product[] = []
+  loading = false
+  error: string | null = null
+  availableGenres: string[] = []
+  availableStyles: string[] = []
 
-  filteredRecords = [...this.vinylRecords]
+  private searchTerms = new Subject<string>()
+  private destroy$ = new Subject<void>()
 
-  toggleFilters() {
+  constructor(
+    private store: Store,
+    private sanitizer: DomSanitizer,
+    private userService: UserService,
+  ) {}
+
+  ngOnInit(): void {
+    // Load vinyls when component initializes
+    this.loading = true
+    this.store.dispatch(ProductActions.loadVinyls())
+
+    // Subscribe to filtered vinyls from the store
+    this.store
+      .select(selectFilteredVinyls)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((vinyls) => {
+        this.filteredVinyls = vinyls
+        // Apply current sort
+        this.applySorting(this.currentSort)
+      })
+
+    // Subscribe to loading state
+    this.store
+      .select(selectProductLoading)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((loading) => {
+        this.loading = loading
+      })
+
+    // Subscribe to error state
+    this.store
+      .select(selectProductError)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((error) => {
+        this.error = error
+      })
+
+    // Subscribe to available genres
+    this.store
+      .select(selectGenres)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((genres) => {
+        this.availableGenres = genres
+      })
+
+    // Subscribe to available styles
+    this.store
+      .select(selectStyles)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((styles) => {
+        this.availableStyles = styles
+      })
+
+    // Setup debounced search
+    this.searchTerms.pipe(takeUntil(this.destroy$), debounceTime(300), distinctUntilChanged()).subscribe((term) => {
+      this.filters = {
+        ...this.filters,
+        searchTerm: term,
+      }
+      this.applyFilters()
+    })
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
+  toggleFilters(): void {
     this.showFilters = !this.showFilters
   }
 
-  updateFilter(type: keyof Filter, value: string, event: Event) {
+  // Fixed filter methods that create new objects instead of modifying existing ones
+  updateGenreFilter(genre: string, event: Event): void {
     const isChecked = (event.target as HTMLInputElement).checked
-    if (type === "category" || type === "condition") {
-      if (isChecked) {
-        this.filters[type].push(value)
-      } else {
-        this.filters[type] = this.filters[type].filter((item) => item !== value)
+    const currentGenres = Array.isArray(this.filters.genre) ? [...this.filters.genre] : []
+
+    if (isChecked) {
+      this.filters = {
+        ...this.filters,
+        genre: [...currentGenres, genre],
+      }
+    } else {
+      this.filters = {
+        ...this.filters,
+        genre: currentGenres.filter((item) => item !== genre),
       }
     }
-    // Note: We don't need to handle 'price' here as it's updated directly by ngModel
-    this.filterRecords()
+
+    this.applyFilters()
   }
 
-  filterRecords() {
-    this.filteredRecords = this.vinylRecords.filter((record) => {
-      const matchesSearch =
-        record.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        record.artist.toLowerCase().includes(this.searchTerm.toLowerCase())
-      const matchesCategory = this.filters.category.length === 0 || this.filters.category.includes(record.category)
-      const matchesPrice = record.price >= this.filters.price.min && record.price <= this.filters.price.max
-      const matchesCondition =
-        this.filters.condition.length === 0 || this.filters.condition.includes(record.mediaCondition)
+  updateStyleFilter(style: string, event: Event): void {
+    const isChecked = (event.target as HTMLInputElement).checked
+    const currentStyles = Array.isArray(this.filters.style) ? [...this.filters.style] : []
 
-      return matchesSearch && matchesCategory && matchesPrice && matchesCondition
-    })
+    if (isChecked) {
+      this.filters = {
+        ...this.filters,
+        style: [...currentStyles, style],
+      }
+    } else {
+      this.filters = {
+        ...this.filters,
+        style: currentStyles.filter((item) => item !== style),
+      }
+    }
+
+    this.applyFilters()
+  }
+
+  // Helper methods to check if items are selected
+  isGenreSelected(genre: string): boolean {
+    return this.filters.genre ? this.filters.genre.includes(genre) : false
+  }
+
+  isStyleSelected(style: string): boolean {
+    return this.filters.style ? this.filters.style.includes(style) : false
+  }
+
+  onSearchChange(term: string): void {
+    this.searchTerms.next(term)
+  }
+
+  applyFilters(): void {
+    this.store.dispatch(ProductActions.applyFilters({ filters: this.filters }))
+  }
+
+  resetFilters(): void {
+    this.searchTerm = ""
+    this.store.dispatch(ProductActions.resetFilters())
+  }
+
+  getArtistTitle(record: Product): string {
+    if (record.artists && record.artists.length > 0) {
+      return `${record.artists.join(", ")} - ${record.name}`
+    }
+    return record.name
+  }
+
+  // Safe image URL handling
+  getSafeImageUrl(record: Product): any {
+    console.log("Getting safe image URL for record:", JSON.stringify(record, null, 2))
+    console.log("Record imageId:", record.imageId)
+    console.log("Record image:", record.image)
+    console.log("Record imageUrl:", record.imageUrl)
+
+    if (!record.imageId) {
+      console.log("No imageId found, using placeholder")
+      return "/assets/placeholder.svg"
+    }
+
+    // Construct the URL with the correct API path
+    const imageUrl = `${environment.apiUrl}/images/${record.imageId}`
+    console.log("Generated image URL:", imageUrl)
+    
+    // Sanitize the URL for security
+    return this.sanitizer.bypassSecurityTrustUrl(imageUrl)
+  }
+
+  // Sorting functionality
+  sortRecords(option: string, event?: Event): void {
+    if (event) {
+      event.preventDefault()
+    }
+
+    this.currentSort = option
+    this.applySorting(option)
+  }
+
+  private applySorting(option: string): void {
+    switch (option) {
+      case "Price: Low to High":
+        this.filteredVinyls = [...this.filteredVinyls].sort((a, b) => (a.price || 0) - (b.price || 0))
+        break
+      case "Price: High to Low":
+        this.filteredVinyls = [...this.filteredVinyls].sort((a, b) => (b.price || 0) - (a.price || 0))
+        break
+      case "Newest":
+        this.filteredVinyls = [...this.filteredVinyls].sort((a, b) => {
+          const dateA = a.dateAdded ? new Date(a.dateAdded).getTime() : 0
+          const dateB = b.dateAdded ? new Date(b.dateAdded).getTime() : 0
+          return dateB - dateA
+        })
+        break
+      case "Relevance":
+      default:
+        // No sorting needed, the default order from the API is used
+        break
+    }
   }
 }
+

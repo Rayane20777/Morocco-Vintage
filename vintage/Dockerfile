@@ -33,12 +33,18 @@ VOLUME /app/data
 # Copy the built artifact from builder stage
 COPY --from=builder /app/target/vintage-0.0.1-SNAPSHOT.jar app.jar
 
-# Environment variables (removed sensitive data)
+# Environment variables from .env file
+ENV MONGODB_URI=mongodb+srv://rayane:fVGpJc0u8kIb92RD@music.iaz2g.mongodb.net/vintage
+ENV MONGODB_PASSWORD=fVGpJc0u8kIb92RD
+ENV MONGO_USERNAME=rayane
+ENV MONGO_PASSWORD=fVGpJc0u8kIb92RD
+ENV JWT_SECRET=your_secure_jwt_secret_key_should_be_at_least_32_characters
+ENV JWT_EXPIRATION=86400000
 ENV SERVER_PORT=8081
 ENV SPRING_PROFILES_ACTIVE=prod
-
-# MongoDB connection string should be set in the application.properties or via environment variables
-# ENV SPRING_DATA_MONGODB_URI=${MONGODB_URI}  # Uncomment if you want to set it here
+ENV CORS_ALLOWED_ORIGINS=http://localhost:4200,http://localhost
+ENV MAIL_USERNAME=rayanefiach@gmail.com
+ENV MAIL_PASSWORD="nezt souf laot zsrk"
 
 EXPOSE 8081
 

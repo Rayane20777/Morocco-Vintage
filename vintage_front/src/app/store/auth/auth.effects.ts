@@ -4,6 +4,7 @@ import { of } from "rxjs"
 import { catchError, map, tap, mergeMap, switchMap } from "rxjs/operators"
 import { Router } from "@angular/router"
 import { AuthService } from "../../services/auth.service"
+import { UserService } from "../../services/user.service"
 import * as AuthActions from "./auth.actions"
 import { Action } from "@ngrx/store"
 
@@ -66,34 +67,46 @@ export class AuthEffects implements OnInitEffects {
     ),
   )
 
-  loginSuccessEffect$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(AuthActions.loginSuccess),
-        tap(({ user, token }) => {
-          console.log("Login success, storing auth data:", { user, token })
-          localStorage.setItem("token", token)
-          localStorage.setItem("username", user.username)
-          localStorage.setItem("roles", JSON.stringify(user.roles))
+  loginSuccessEffect$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.loginSuccess),
+      tap(({ user, token }) => {
+        // Store auth data immediately
+        localStorage.setItem("token", token)
+        localStorage.setItem("username", user.username)
+        localStorage.setItem("roles", JSON.stringify(user.roles))
+      }),
+      switchMap(({ user, token }) =>
+        this.userService.getCurrentUser().pipe(
+          map((profile) => {
+            console.log("Login success, storing auth data:", { user, token, profile })
 
-          // Check if user is admin and redirect accordingly
-          const isAdmin =
-            user.roles &&
-            user.roles.some(
-              (role: { authority: string }) => role.authority === "ADMIN" || role.authority === "ROLE_ADMIN",
-            )
-          console.log("User is admin:", isAdmin, "Roles:", user.roles)
+            // Check if user is admin and redirect accordingly
+            const isAdmin =
+              user.roles &&
+              user.roles.some(
+                (role: { authority: string }) => role.authority === "ADMIN" || role.authority === "ROLE_ADMIN",
+              )
+            console.log("User is admin:", isAdmin, "Roles:", user.roles)
 
-          if (isAdmin) {
-            console.log("Navigating to admin dashboard")
-            this.router.navigate(["/admin/dashboard"])
-          } else {
-            console.log("Navigating to /browse after successful login")
-            this.router.navigate(["/browse"])
-          }
-        }),
+            if (isAdmin) {
+              console.log("Navigating to admin dashboard")
+              this.router.navigate(["/admin/dashboard"])
+            } else {
+              console.log("Navigating to /browse after successful login")
+              this.router.navigate(["/browse"])
+            }
+
+            // Update the auth state with the complete user profile
+            return AuthActions.updateUserProfile({ profile })
+          }),
+          catchError((error) => {
+            console.error("Error fetching user profile:", error)
+            return of(AuthActions.loginFailure({ error: "Failed to fetch user profile" }))
+          }),
+        ),
       ),
-    { dispatch: false },
+    ),
   )
 
   register$ = createEffect(() =>
@@ -109,6 +122,7 @@ export class AuthEffects implements OnInitEffects {
             lastName: registerData.lastName,
             phoneNumber: registerData.phoneNumber,
             roles: registerData.roles,
+            image: registerData.image
           })
           .pipe(
             map((response) =>
@@ -178,6 +192,7 @@ export class AuthEffects implements OnInitEffects {
   constructor(
     private actions$: Actions,
     private authService: AuthService,
+    private userService: UserService,
     private router: Router,
   ) {}
 }

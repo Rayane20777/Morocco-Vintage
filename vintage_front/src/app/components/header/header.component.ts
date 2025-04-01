@@ -24,15 +24,15 @@ import * as AuthActions from '../../store/auth/auth.actions';
             <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
             </svg>
-            <span class="text-xl font-bold tracking-tight">VINYL VAULT</span>
+            <span class="text-xl font-bold tracking-tight">Vintage Maroc</span>
           </a>
         </div>
 
         <nav class="hidden md:flex items-center gap-6">
           <a routerLink="/" class="text-sm font-medium hover:text-teal transition-colors">Home</a>
-          <a routerLink="/browse" class="text-sm font-medium hover:text-teal transition-colors">Browse</a>
+          <a routerLink="/browse" class="text-sm font-medium hover:text-teal transition-colors">Vinyls</a>
           <a routerLink="/equipment" class="text-sm font-medium hover:text-teal transition-colors">Equipment</a>
-          <a routerLink="/cart" class="text-sm font-medium hover:text-teal transition-colors">Cart</a>
+          <a routerLink="/antiques" class="text-sm font-medium hover:text-teal transition-colors">Antiques</a>
         </nav>
 
         <div class="flex items-center gap-2">

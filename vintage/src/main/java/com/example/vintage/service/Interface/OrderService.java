@@ -1,5 +1,7 @@
 package com.example.vintage.service.Interface;
 
+import com.example.vintage.dto.ChartData;
+import com.example.vintage.dto.DashboardMetrics;
 import com.example.vintage.dto.request.OrderRequest;
 import com.example.vintage.dto.response.OrderResponse;
 import com.example.vintage.model.Order;
@@ -14,6 +16,8 @@ import java.util.List;
 public interface OrderService {
     OrderResponse createOrder(OrderRequest request);
     OrderResponse getOrderById(String orderId);
+    OrderResponse getOrderById(String orderId, String username);
+    List<OrderResponse> getUserOrders(String username);
     List<OrderResponse> getAllOrders();
     List<OrderResponse> getOrdersByClientId(String clientId);
     List<OrderResponse> getOrdersByStatus(OrderStatus status);
@@ -25,4 +29,6 @@ public interface OrderService {
     Order denyOrder(String orderId);
     Order cancelOrder(String orderId);
     Order refundOrder(String orderId);
+    DashboardMetrics getDashboardMetrics();
+    ChartData getChartData(String period);
 } 

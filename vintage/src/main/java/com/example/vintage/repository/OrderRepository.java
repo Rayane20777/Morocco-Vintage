@@ -17,4 +17,5 @@ public interface OrderRepository extends MongoRepository<Order, String> {
     List<Order> findByClientAndOrderDateBetween(User client, Date startDate, Date endDate);
     long countByOrderStatus(OrderStatus status);
     boolean existsByClientAndOrderStatus(User client, OrderStatus status);
+    List<Order> findByClientId(String clientId);
 } 

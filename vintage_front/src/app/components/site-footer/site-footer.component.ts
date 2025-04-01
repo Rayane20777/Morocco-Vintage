@@ -15,7 +15,7 @@ import { CommonModule } from "@angular/common"
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-teal group-hover:animate-spin-slow transition-all duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
               </svg>
-              <span class="text-lg font-bold">VINYL VAULT</span>
+              <span class="text-lg font-bold">Vintage Maroc</span>
             </div>
             <p class="text-gray-400 text-sm">Your destination for premium vinyl records and audio equipment.</p>
             
@@ -86,7 +86,7 @@ import { CommonModule } from "@angular/common"
         </div>
 
         <div class="mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p class="text-sm text-gray-400">© {{ currentYear }} Vinyl Vault. All rights reserved.</p>
+          <p class="text-sm text-gray-400">© {{ currentYear }} Vintage Maroc. All rights reserved.</p>
           <div class="flex items-center gap-4">
             <a href="#" class="text-sm text-gray-400 hover:text-teal transition-colors">Privacy Policy</a>
             <a href="#" class="text-sm text-gray-400 hover:text-teal transition-colors">Terms of Service</a>

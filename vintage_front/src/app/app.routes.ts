@@ -1,42 +1,69 @@
-import type { Routes } from "@angular/router"
+import { Routes } from "@angular/router"
 import { authGuard } from "./guards/auth.guard"
 import { adminGuard } from "./guards/admin.guard"
-import { userGuard } from "./guards/user.guard"
+import { noAuthGuard } from "./guards/no-auth.guard"
+import { HomeComponent } from './pages/home/home.component'
+import { CartComponent } from './pages/cart/cart.component'
+import { AntiquesComponent } from './pages/antiques/antiques.component'
+import { AntiqueDetailComponent } from './pages/antiques/antique-detail.component'
 
 export const routes: Routes = [
-  // Public routes
-  { 
-    path: "", 
-    loadComponent: () => import("./pages/home/home.component").then((m) => m.HomeComponent),
-    canActivate: [userGuard]
-  },
   {
-    path: "auth",
-    loadChildren: () => import("./pages/auth/auth.routes").then((m) => m.AUTH_ROUTES),
+    path: "",
+    loadComponent: () => import("./pages/home/home.component").then((m) => m.HomeComponent),
   },
-
-  // User routes (protected from admin access)
   {
     path: "browse",
     loadComponent: () => import("./pages/browse/browse.component").then((m) => m.BrowseComponent),
-    canActivate: [authGuard, userGuard],
+    canActivate: [authGuard],
   },
   {
-    path: "cart",
-    loadComponent: () => import("./pages/cart/cart.component").then((m) => m.CartComponent),
-    canActivate: [authGuard, userGuard],
+    path: "release/:id",
+    loadComponent: () =>
+      import("./pages/release-detail/release-detail.component").then((m) => m.ReleaseDetailComponent),
+    canActivate: [authGuard],
   },
   {
     path: "equipment",
     loadComponent: () => import("./pages/equipment/equipment.component").then((m) => m.EquipmentComponent),
-    canActivate: [authGuard, userGuard],
+    canActivate: [authGuard],
+  },
+  {
+    path: "equipment/:id",
+    loadComponent: () =>
+      import("./pages/equipment-detail/equipment-detail.component").then((m) => m.EquipmentDetailComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: "antiques",
+    loadComponent: () => import("./pages/antiques/antiques.component").then((m) => m.AntiquesComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: "antiques/:id",
+    loadComponent: () => import("./pages/antiques/antique-detail.component").then((m) => m.AntiqueDetailComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: "cart",
+    loadComponent: () => import("./pages/cart/cart.component").then((m) => m.CartComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: "auth",
+    loadChildren: () => import("./pages/auth/auth.routes").then((m) => m.AUTH_ROUTES),
+    canActivate: [noAuthGuard],
   },
   {
     path: "profile",
     loadComponent: () => import("./pages/profile/profile.component").then((m) => m.ProfileComponent),
-    canActivate: [authGuard, userGuard],
+    canActivate: [authGuard],
     children: [
-      { path: "", redirectTo: "overview", pathMatch: "full" },
+      {
+        path: "",
+        redirectTo: "overview",
+        pathMatch: "full",
+      },
       {
         path: "overview",
         loadComponent: () => import("./pages/profile/overview/overview.component").then((m) => m.OverviewComponent),
@@ -58,30 +85,15 @@ export const routes: Routes = [
     ],
   },
   {
-    path: "antiques",
-    loadComponent: () => import("./pages/antiques/antiques.component").then((m) => m.AntiquesComponent),
-    canActivate: [authGuard, userGuard],
-  },
-  {
-    path: "release/:id",
-    loadComponent: () =>
-      import("./pages/release-detail/release-detail.component").then((m) => m.ReleaseDetailComponent),
-    canActivate: [authGuard, userGuard],
-  },
-  {
-    path: "antiques/:id",
-    loadComponent: () =>
-      import("./components/antique-detail/antique-detail.component").then((m) => m.AntiqueDetailComponent),
-    canActivate: [authGuard, userGuard],
-  },
-
-  // Admin routes (protected from user access)
-  {
     path: "admin",
     loadComponent: () => import("./pages/admin/admin.component").then((m) => m.AdminComponent),
     canActivate: [authGuard, adminGuard],
     children: [
-      { path: "", redirectTo: "dashboard", pathMatch: "full" },
+      {
+        path: "",
+        redirectTo: "dashboard",
+        pathMatch: "full",
+      },
       {
         path: "dashboard",
         loadComponent: () => import("./pages/admin/dashboard/dashboard.component").then((m) => m.DashboardComponent),
@@ -92,20 +104,27 @@ export const routes: Routes = [
       },
       {
         path: "orders",
-        loadComponent: () => import("./pages/admin/orders/orders.component").then((m) => m.OrdersComponent),
+        loadComponent: () => import("./pages/admin/orders/admin-orders/admin-orders.component").then((m) => m.AdminOrdersComponent),
+      },
+      {
+        path: "orders/:id",
+        loadComponent: () =>
+          import("./pages/admin/orders/order-detail/order-detail.component").then((m) => m.OrderDetailComponent),
+      },
+      {
+        path: "orders/:id/edit",
+        loadComponent: () =>
+          import("./pages/admin/orders/order-edit/order-edit.component").then((m) => m.OrderEditComponent),
       },
       {
         path: "customers",
         loadComponent: () => import("./pages/admin/customers/customers.component").then((m) => m.CustomersComponent),
-      },
-      {
-        path: "analytics",
-        loadComponent: () => import("./pages/admin/analytics/analytics.component").then((m) => m.AnalyticsComponent),
-      },
+      }
     ],
   },
-
-  // Fallback route
-  { path: "**", redirectTo: "" },
+  {
+    path: "**",
+    redirectTo: "",
+  },
 ]
 

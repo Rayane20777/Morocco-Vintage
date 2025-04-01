@@ -49,12 +49,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/images/**").permitAll()
+                        .requestMatchers("/api/admin/users/profile").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/user/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exceptionHandling -> exceptionHandling
+                .exceptionHandling(handling -> handling
                         .authenticationEntryPoint((request, response, authException) -> {
                             log.error("Unauthorized error: {}", authException.getMessage());
                             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized");

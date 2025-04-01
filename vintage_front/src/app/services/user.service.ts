@@ -1,9 +1,22 @@
 import { Injectable } from "@angular/core"
 import { HttpClient } from "@angular/common/http"
 import { Observable, throwError } from "rxjs"
-import { catchError } from "rxjs/operators"
+import { catchError, map } from "rxjs/operators"
 import { environment } from "../../environments/environment"
 import { User } from "../store/users/user.types"
+import { ApiService } from './api.service'
+
+export interface UserProfile {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  active: boolean;
+  roles: string[];
+  imageId?: string;
+}
 
 @Injectable({
   providedIn: "root",
@@ -11,7 +24,7 @@ import { User } from "../store/users/user.types"
 export class UserService {
   private apiUrl = `${environment.apiUrl}/admin/users`
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private apiService: ApiService) {}
 
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl).pipe(
@@ -33,53 +46,15 @@ export class UserService {
 
   updateUser(id: string, user: Partial<User>): Observable<User> {
     console.log('Updating user:', { id, user });
+    
     const formData = new FormData();
-    
-    // Only append fields that have changed
-    if (user.firstName) {
-      formData.append('firstName', user.firstName);
-      console.log('Appending firstName:', user.firstName);
-    }
-    if (user.lastName) {
-      formData.append('lastName', user.lastName);
-      console.log('Appending lastName:', user.lastName);
-    }
-    if (user.email) {
-      formData.append('email', user.email);
-      console.log('Appending email:', user.email);
-    }
-    if (user.phoneNumber) {
-      formData.append('phoneNumber', user.phoneNumber);
-      console.log('Appending phoneNumber:', user.phoneNumber);
-    }
-    if (user.active !== undefined) {
-      formData.append('active', user.active.toString());
-      console.log('Appending active:', user.active);
-    }
-    if (user.roles) {
-      // Send each role as a separate form field
-      user.roles.forEach((role, index) => {
-        formData.append(`roles[${index}]`, role);
-      });
-      console.log('Appending roles:', user.roles);
-    }
-    if (user.image) {
-      formData.append('image', user.image);
-      console.log('Appending image:', user.image);
-    }
-
-    // Log the request details
-    console.log('Sending PUT request to:', `${this.apiUrl}/${id}`);
-    console.log('FormData contents:', {
-      firstName: formData.get('firstName'),
-      lastName: formData.get('lastName'),
-      email: formData.get('email'),
-      phoneNumber: formData.get('phoneNumber'),
-      active: formData.get('active'),
-      roles: user.roles,
-      image: formData.get('image') ? 'Image present' : 'No image'
+    Object.keys(user).forEach(key => {
+      const value = user[key as keyof User];
+      if (value !== undefined && value !== null) {
+        formData.append(key, value.toString());
+      }
     });
-    
+
     return this.http.put<User>(`${this.apiUrl}/${id}`, formData).pipe(
       catchError((error) => {
         console.error(`Error updating user ${id}:`, error);
@@ -117,8 +92,9 @@ export class UserService {
     )
   }
 
-  getProfileImageUrl(userId: string): string {
-    return `${this.apiUrl}/${userId}/profile-image`
+  getProfileImageUrl(imageId: string): string {
+    if (!imageId) return '';
+    return `${environment.apiUrl}/images/${imageId}`;
   }
 
   deleteUser(userId: string): Observable<void> {
@@ -128,6 +104,33 @@ export class UserService {
         return throwError(() => new Error(error.message || "Failed to delete user"))
       }),
     )
+  }
+
+  getCurrentUser(): Observable<UserProfile> {
+    return this.apiService.get<UserProfile>('/admin/users/profile').pipe(
+      catchError(error => {
+        console.error('Error fetching user profile:', error);
+        return throwError(() => new Error('Failed to fetch user profile'));
+      })
+    );
+  }
+
+  updateProfile(formData: FormData): Observable<UserProfile> {
+    return this.apiService.put<UserProfile>('/admin/users/profile', formData).pipe(
+      catchError(error => {
+        console.error('Error updating user profile:', error);
+        return throwError(() => new Error('Failed to update user profile'));
+      })
+    );
+  }
+
+  getProfileImage(userId: string): Observable<Blob> {
+    return this.apiService.get<Blob>(`/admin/users/${userId}/profile-image`).pipe(
+      catchError(error => {
+        console.error('Error fetching profile image:', error);
+        return throwError(() => new Error('Failed to fetch profile image'));
+      })
+    );
   }
 }
 

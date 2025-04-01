@@ -17,6 +17,7 @@ interface RegisterRequest {
   lastName: string
   phoneNumber: string
   roles: string[]
+  image?: File
 }
 
 @Injectable({
@@ -33,7 +34,20 @@ export class AuthService {
   }
 
   register(registerData: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, registerData)
+    const formData = new FormData()
+    formData.append('username', registerData.username)
+    formData.append('password', registerData.password)
+    formData.append('email', registerData.email)
+    formData.append('firstName', registerData.firstName)
+    formData.append('lastName', registerData.lastName)
+    formData.append('phoneNumber', registerData.phoneNumber)
+    formData.append('roles', JSON.stringify(registerData.roles))
+    
+    if (registerData.image) {
+      formData.append('image', registerData.image)
+    }
+
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, formData)
   }
 
   getStoredToken(): string | null {

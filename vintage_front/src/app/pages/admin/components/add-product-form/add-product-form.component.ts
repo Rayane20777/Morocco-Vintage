@@ -3,11 +3,11 @@ import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 
 interface Product {
-  id: string // Changed from number to string
+  id: string
   name: string
   description: string
   price: number
-  boughtPrice: number // Changed from bought_price to boughtPrice
+  boughtPrice: number
   status: string
   type: string
   year: number
@@ -37,7 +37,7 @@ interface ProductFormData {
   name: string
   description: string
   price: number
-  boughtPrice: number // Changed from bought_price to boughtPrice
+  boughtPrice: number
   status: string
   type: string
   year: number
@@ -53,7 +53,7 @@ interface ProductFormData {
   styleUrls: ["./add-product-form.component.css"],
 })
 export class AddProductFormComponent {
-  @Output() formSubmit = new EventEmitter<ProductFormData>()
+  @Output() formSubmit = new EventEmitter<FormData>()
   @Output() formCancel = new EventEmitter<void>()
 
   product: Product = {
@@ -154,32 +154,50 @@ export class AddProductFormComponent {
   onSubmit() {
     // Process array inputs before submitting
     if (this.product.type === "VINYL") {
-      this.product.artists = this.artistsInput
-        .split(",")
-        .map((item) => item.trim())
-        .filter((item) => item)
-      this.product.genres = this.genresInput
-        .split(",")
-        .map((item) => item.trim())
-        .filter((item) => item)
-      this.product.styles = this.stylesInput
-        .split(",")
-        .map((item) => item.trim())
-        .filter((item) => item)
-      this.product.format = this.formatInput
-        .split(",")
-        .map((item) => item.trim())
-        .filter((item) => item)
+      // Fix: Properly parse arrays without extra quotes
+      this.product.artists = this.parseArrayInput(this.artistsInput)
+      this.product.genres = this.parseArrayInput(this.genresInput)
+      this.product.styles = this.parseArrayInput(this.stylesInput)
+      this.product.format = this.parseArrayInput(this.formatInput)
     }
 
-    // In a real application, you would upload the image to a server
-    // and get back a URL to store in the product object
-    if (this.imagePreview) {
-      // For demo purposes, we'll just use the preview as the URL
-      this.product.imageUrl = this.imagePreview as string
+    // Create a FormData object with the product data
+    const formData = new FormData()
+    formData.append('name', this.product.name)
+    formData.append('description', this.product.description)
+    formData.append('price', this.product.price.toString())
+    formData.append('boughtPrice', this.product.boughtPrice.toString())
+    formData.append('year', this.product.year.toString())
+    formData.append('status', this.product.status)
+    formData.append('type', this.product.type)
+
+    // Add type-specific fields
+    if (this.product.type === "VINYL") {
+      if (this.product.artists) formData.append('artists', JSON.stringify(this.product.artists))
+      if (this.product.genres) formData.append('genres', JSON.stringify(this.product.genres))
+      if (this.product.styles) formData.append('styles', JSON.stringify(this.product.styles))
+      if (this.product.format) formData.append('format', JSON.stringify(this.product.format))
+      if (this.product.discogsId) formData.append('discogsId', this.product.discogsId.toString())
     }
 
-    this.formSubmit.emit(this.product as ProductFormData)
+    // Add image if present
+    if (this.imageFile) {
+      formData.append('image', this.imageFile)
+    }
+
+    this.formSubmit.emit(formData)
+  }
+
+  // Helper method to properly parse comma-separated values into an array
+  private parseArrayInput(input: string): string[] {
+    if (!input || input.trim() === "") {
+      return []
+    }
+
+    return input
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item !== "")
   }
 
   cancel() {
